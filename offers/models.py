@@ -1,10 +1,11 @@
 from django.db import models
 
 class Offer(models.Model):
-    loading_location = models.CharField(max_length=255)  # Locul de încărcare
-    loading_date = models.DateTimeField()  # Data și ora încărcării
-    unloading_location = models.CharField(max_length=255)  # Locul de descărcare
-    unloading_date = models.DateTimeField()  # Data și ora descărcării
+    loading_location = models.CharField(max_length=255,blank=True, null=True)  # Locul de încărcare
+    unloading_location = models.CharField(max_length=255,blank=True, null=True)  # Locul de descărcare
+    loading_date = models.DateTimeField(blank=True, null=True)  # Data și ora încărcării
+    unloading_date = models.DateTimeField(blank=True, null=True)  # Data și ora descărcării
+    unloading_date = models.DateTimeField(blank=True, null=True)  # Data și ora descărcării
     cargo_details = models.TextField(blank=True, null=True)  # Detalii despre marfă (ex. dimensiuni, greutate)
     weight_kg = models.FloatField(default=0.0)  # Greutatea totală (kg)
     distance_km = models.FloatField(default=0.0)  # Distanța în kilometri

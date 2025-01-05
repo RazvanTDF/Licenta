@@ -1,0 +1,13 @@
+{
+    "python.autoComplete.extraPaths": [
+      "./backend",
+      "./offers",
+      "./myenv/lib/python3.13/site-packages"
+    ],
+    "python.analysis.extraPaths": [
+      "./backend",
+      "./offers",
+      "./myenv/lib/python3.13/site-packages"
+    ]
+  }
+  
