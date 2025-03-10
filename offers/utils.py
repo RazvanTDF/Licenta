@@ -1,36 +1,47 @@
-import googlemaps
+import requests
 from decouple import config
 from .models import Offer
 
-# Initializează clientul Google Maps
-GOOGLE_MAPS_API_KEY = config('GOOGLE_MAPS_API_KEY')
-gmaps = googlemaps.Client(key=GOOGLE_MAPS_API_KEY)
+# Obține API Key din .env
+GOOGLE_MAPS_API_KEY = config("GOOGLE_MAPS_API_KEY")
 
-def get_distance_from_google_maps(origin, destination):
+
+def get_distance_from_google_routes(origin, destination):
     """
-    Utilizează Google Maps API pentru a calcula distanța în kilometri între două locații.
+    Utilizează Google Routes API pentru a calcula distanța în kilometri între două locații.
     """
     try:
-        # Apelăm Google Maps Directions API
-        directions = gmaps.directions(origin, destination, mode="driving")
-           # Afișăm răspunsul complet al API-ului
+        # URL-ul pentru Google Routes API
+        url = "https://routes.googleapis.com/directions/v2:computeRoutes"
+        headers = {
+            "Content-Type": "application/json",
+            "X-Goog-Api-Key": GOOGLE_MAPS_API_KEY,
+            "X-Goog-FieldMask": "routes.distanceMeters"
+        }
+        data = {
+            "origin": {"location": {"address": origin}},
+            "destination": {"location": {"address": destination}},
+            "travelMode": "DRIVE"
+        }
         
-        # Verificăm dacă există date valide
-        if directions and len(directions) > 0:
-            # Extragem distanța în metri și convertim în kilometri
-            distance_meters = directions[0]['legs'][0]['distance']['value']
-            distance_km = distance_meters / 1000
+        response = requests.post(url, json=data, headers=headers)
+        response_data = response.json()
+        
+        if "routes" in response_data and response_data["routes"]:
+            distance_meters = response_data["routes"][0]["distanceMeters"]
+            distance_km = distance_meters / 1000  # Conversie în kilometri
             return round(distance_km, 2)
+
     except Exception as e:
-        # În caz de eroare, logăm problema și returnăm 0
-        print(f"Google Maps API error: {e}")
+        print(f"Google Maps Routes API error: {e}")
+    
     return 0
 
 
 def calculate_best_offer():
     """
     Selectează cea mai bună ofertă pe baza raportului preț/km, eliminând duplicatele
-    și utilizând Google Maps pentru a completa distanțele lipsă.
+    și utilizând Google Routes API pentru a completa distanțele lipsă.
     """
     # Resetăm câmpul `best_offer` pentru toate ofertele
     Offer.objects.update(best_offer=False)
@@ -49,7 +60,7 @@ def calculate_best_offer():
         if key not in unique_offers:
             # Calculăm distanța dacă aceasta nu este specificată
             if not offer.distance_km or offer.distance_km <= 0:
-                distance = get_distance_from_google_maps(offer.loading_location, offer.unloading_location)
+                distance = get_distance_from_google_routes(offer.loading_location, offer.unloading_location)
                 offer.distance_km = distance
                 offer.save()
 
@@ -72,4 +83,3 @@ def calculate_best_offer():
     if best_offer:
         best_offer.best_offer = True
         best_offer.save()
-        

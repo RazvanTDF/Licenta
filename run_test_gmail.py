@@ -77,18 +77,51 @@ def parse_email_content(email_body):
     return details
 
 
+import re
+
 def parse_price(price_str):
     """
-    Convertește un preț dintr-un string în float, suportând `.` și `,` ca separatori.
-    Elimină orice alt caracter care nu e cifră, punct sau virgulă.
+    Convertește un preț exprimat în diferite formate într-un float corect.
+    
+    Acceptă:
+      - 160  -> 160.00
+      - 160.00  -> 160.00
+      - 160,00  -> 160.00
+      - 1,600.50  -> 1600.50
+      - 1.600,50  -> 1600.50
+      - 1 600,50  -> 1600.50 (spații ca separatori de mii)
+    
+    Heuristică:
+      - Dacă există atât `.` cât și `,`, separatorul care apare ultimul este cel zecimal.
+      - Dacă există doar `,`, verificăm dacă este separator de mii sau zecimal.
+      - Dacă există doar `.`, presupunem că este separator zecimal.
     """
     try:
-        price_str = price_str.replace(",", ".")
-        price_clean = re.sub(r"[^\d.]", "", price_str)
+        # Eliminăm toate caracterele non-numerice, cu excepția `.` și `,`
+        price_clean = re.sub(r"[^\d.,]", "", price_str)
+
+        # Dacă apar AMBELE caractere (`.` și `,`), interpretăm separatorul final ca fiind zecimal
+        if "." in price_clean and "," in price_clean:
+            if price_clean.rfind('.') > price_clean.rfind(','):
+                price_clean = price_clean.replace(',', '')  # Eliminăm `,` (separator de mii)
+            else:
+                price_clean = price_clean.replace('.', '').replace(',', '.')  # Eliminăm `.` și transformăm `,` în `.`
+        
+        # Dacă există doar `,`, determinăm dacă e separator de mii sau zecimal
+        elif "," in price_clean:
+            parts = price_clean.split(',')
+            if len(parts[-1]) == 3:  # Dacă ultima parte are 3 cifre, e separator de mii
+                price_clean = price_clean.replace(',', '')
+            else:  # Altfel, e separator zecimal
+                price_clean = price_clean.replace(',', '.')
+
+        # Dacă există doar `.`, îl considerăm separator zecimal
+
         return round(float(price_clean), 2)
+    
     except ValueError:
-        print(f"Nu s-a putut converti prețul: {price_str}")
-        return 0.0
+        print(f"⚠️ Nu s-a putut converti prețul: {price_str}")
+        return 0.0  # Dacă tot nu poate converti, returnează 0.0 ca fallback
 
 
 def parse_weight(weight_str):
