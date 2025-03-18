@@ -39,11 +39,11 @@ def parse_email_content(email_body):
             re.IGNORECASE
         ],
         "loading_date": [
-            r"(?:data\s*încărcare|data\s*incarcare|loading\s*date|fecha\s*de\s*carga)\s*:\s*(.+)",
+            r"(?:data\s*încărcare|data\s*încărcării|data\s*incarcare|loading\s*date|fecha\s*de\s*carga)\s*:\s*(.+)",
             re.IGNORECASE
         ],
         "unloading_date": [
-            r"(?:data\s*descărcare|data\s*descarcare|unloading\s*date|fecha\s*de\s*descarga)\s*:\s*(.+)",
+            r"(?:data\s*descărcare|data\s*descărcării|data\s*descarcare|unloading\s*date|fecha\s*de\s*descarga)\s*:\s*(.+)",
             re.IGNORECASE
         ],
         "price": [
