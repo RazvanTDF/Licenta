@@ -1,8 +1,33 @@
 import requests
 from decouple import config
+from django.db.models import Avg, F, FloatField, ExpressionWrapper
 from .models import Offer
 
 GOOGLE_MAPS_API_KEY = config("GOOGLE_MAPS_API_KEY")
+
+def recommend_price_simple(loading_location, unloading_location, distance_km, weight_kg):
+    offers = Offer.objects.filter(
+        loading_location__iexact=loading_location.strip(),
+        unloading_location__iexact=unloading_location.strip(),
+        price__isnull=False,
+        distance_km__gt=0,
+        weight_kg__gt=0
+    ).annotate(
+        price_per_km_kg=ExpressionWrapper(
+            F('price') / (F('distance_km') * F('weight_kg')),
+            output_field=FloatField()
+        )
+    )
+
+    avg_price_per_km_kg = offers.aggregate(
+        avg=Avg('price_per_km_kg')
+    )['avg']
+
+    if avg_price_per_km_kg:
+        recommended_price = round(weight_kg * distance_km * avg_price_per_km_kg, 2)
+        return recommended_price
+
+    return None
 
 def get_distance_from_google_routes(origin, destination):
     """

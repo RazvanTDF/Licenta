@@ -4,6 +4,8 @@ import django
 import base64
 import re
 from datetime import datetime
+from offers.utils import recommend_price_simple, get_distance_from_google_routes
+
 
 # Configurare Django
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -255,8 +257,7 @@ def process_email_advanced():
                 if details.get('loading_location') and details.get('unloading_location'):
                     loading_location = details['loading_location']
                     unloading_location = details['unloading_location']
-                    distance_km = parse_weight(details.get('distance_km', '0.0'))  # idem parse_weight pt permisivitate
-                    price = parse_price(details.get('price', '0.0'))
+                    distance_km = parse_weight(details.get('distance_km', '0.0'))
                     weight_kg = parse_weight(details.get('weight_kg', '0.0'))
 
                     # Separăm cargo_details și observations, dacă există
@@ -267,11 +268,29 @@ def process_email_advanced():
                     loading_date = parse_date(details.get("loading_date", ""))
                     unloading_date = parse_date(details.get("unloading_date", ""))
 
-                    # 4. Verificare duplicat (pe loading_location, unloading_location, price)
+                    # Calculează distanța exactă folosind Google Routes API dacă lipsește
+                    if not distance_km or distance_km == 0.0:
+                        distance_km = get_distance_from_google_routes(loading_location, unloading_location)
+
+                    # Verifică dacă lipsește prețul și calculează recomandarea dacă e necesar
+                    if not details.get("price") or parse_price(details.get('price', '0')) == 0.0:
+                        recommended_price = recommend_price_simple(
+                            loading_location,
+                            unloading_location,
+                            distance_km,
+                            weight_kg
+                        )
+                        price = None
+                    else:
+                        recommended_price = None
+                        price = parse_price(details.get('price'))
+
+                    # 4. Verificare duplicat (pe loading_location, unloading_location, price, recommended_price)
                     if Offer.objects.filter(
                         loading_location=loading_location,
                         unloading_location=unloading_location,
-                        price=price
+                        price=price,
+                        recommended_price=recommended_price
                     ).exists():
                         print("Această ofertă există deja în baza de date.")
                     else:
@@ -281,6 +300,7 @@ def process_email_advanced():
                             unloading_location=unloading_location,
                             distance_km=distance_km,
                             price=price,
+                            recommended_price=recommended_price,
                             weight_kg=weight_kg,
                             cargo_details=cargo_details,
                             observations=observations,
@@ -289,14 +309,17 @@ def process_email_advanced():
                             unloading_date=unloading_date,
                         )
                         offer.save()
-                        print(f"Ofertă salvată: {offer}")
+
+                        if recommended_price:
+                            print(f"✅ Ofertă salvată cu preț recomandat: {offer}")
+                        else:
+                            print(f"✅ Ofertă salvată cu preț explicit: {offer}")
                 else:
                     print("Email incomplet. Lipsește locația de încărcare sau descărcare.")
             else:
                 print("Email fără conținut (sau nu s-a găsit corpul mesajului).")
         except Exception as e:
             print(f"Eroare la procesarea emailului: {e}")
-
 
 if __name__ == "__main__":
     try:
