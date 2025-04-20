@@ -1,2 +1,41 @@
 myenv/
 offers/credentials.json
+# 🐍 Virtual environment
+venv/
+env/
+myenv/
+__pycache__/
+*.py[cod]
+*.sqlite3
+
+# 🧪 Python crap
+*.log
+*.pot
+*.pyc
+*.pyo
+*.pyd
+
+# 🌐 Environments & configs
+.env
+.env.*
+.DS_Store
+
+# ⚙️ VS Code configs
+.vscode/
+
+# 📦 Cache folders
+.mypy_cache/
+.pytest_cache/
+coverage/
+htmlcov/
+
+# 📁 Build artefacts
+build/
+dist/
+*.egg-info/
+
+# 🧠 Model data (dacă există)
+*.spacy
+*.model
+# Virtual environments
+venv_ai/
