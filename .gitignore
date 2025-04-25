@@ -39,3 +39,5 @@ dist/
 *.model
 # Virtual environments
 venv_ai/
+offers/gmail/credentials.json
+offers/gmail/token.pickle
