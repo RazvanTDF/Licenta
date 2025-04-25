@@ -10,12 +10,15 @@ nlp = spacy.load("ro_core_news_sm")
 
 def extract_all_details(email_text):
     """
-    Încearcă mai întâi extragere cu regex, apoi completează câmpurile lipsă cu AI.
+    Încearcă mai întâi extragere cu regex, apoi completează ce lipsește cu AI.
     """
+    if not isinstance(email_text, str):
+        print("⚠️ Email body invalid (nu este text). Ignorăm acest email.")
+        return {}
+
     print("🔍 Extragere inițială cu regex...")
     details = parse_email_content(email_text)
 
-    # Câmpuri esențiale pentru ofertă
     required_fields = ["loading_location", "unloading_location", "price", "weight_kg"]
     missing = [f for f in required_fields if not details.get(f)]
 
@@ -24,7 +27,6 @@ def extract_all_details(email_text):
         doc = nlp(email_text)
         ai_details = extract_offer_details_from_ai(doc)
 
-        # Completăm doar câmpurile lipsă
         for key in missing:
             if ai_details.get(key):
                 details[key] = ai_details[key]

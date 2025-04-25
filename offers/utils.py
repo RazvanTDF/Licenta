@@ -3,8 +3,19 @@ import requests
 from decouple import config
 from django.db.models import Avg, F, FloatField, ExpressionWrapper
 from .models import Offer
+from datetime import datetime
+
 
 GOOGLE_MAPS_API_KEY = config("GOOGLE_MAPS_API_KEY")
+
+def parse_date_ai(date_str):
+    formats = ["%d/%m/%Y", "%d.%m.%Y", "%Y-%m-%d"]
+    for fmt in formats:
+        try:
+            return datetime.strptime(date_str.strip(), fmt)
+        except:
+            continue
+    return None
 
 def recommend_price_simple(loading_location, unloading_location, distance_km, weight_kg):
     offers = Offer.objects.filter(
@@ -68,10 +79,15 @@ def get_distance_from_google_routes(origin, destination):
     return 0
 
 def parse_email_content(email_body):
+    
     """
     Parsează corpul emailului și returnează informațiile extrase cu regex.
     Recunoaște câteva sinonime pentru termeni uzuali.
     """
+    # Adăugare protecție dacă email_body este None sau nu este string
+    if not email_body or not isinstance(email_body, str):
+        print("⚠️ Email body invalid sau inexistent, trecem peste acest email.")
+        return {}
     terms_mapping = {
         "loading_location": [
             r"(?:încărcare|incarcare|origin|from|origen)\s*:\s*(.+)",
@@ -110,12 +126,29 @@ def parse_email_content(email_body):
             re.IGNORECASE
         ],
     }
-
+    
+    
     details = {}
     for key, (pattern, flags) in terms_mapping.items():
         match = re.search(pattern, email_body, flags)
         if match:
-            details[key] = match.group(1).strip()
+            value = match.group(1).strip()
+
+            # Conversie pentru date
+            if key in ["loading_date", "unloading_date"]:
+                parsed_date = parse_date_ai(value)
+                details[key] = parsed_date
+                print(f"[DEBUG] Parsed date for {key}: {parsed_date}")
+            elif key in ["price", "distance_km", "weight_kg"]:
+                value = value.replace(",", ".")
+                try:
+                    details[key] = float(value)
+                except:
+                    details[key] = 0.0
+                print(f"[DEBUG] Parsed float for {key}: {details[key]}")
+            else:
+                details[key] = value
+                print(f"[DEBUG] Found value for {key}: {value} ({type(value)})")
 
     return details
 
