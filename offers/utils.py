@@ -1,3 +1,4 @@
+import re
 import requests
 from decouple import config
 from django.db.models import Avg, F, FloatField, ExpressionWrapper
@@ -65,6 +66,59 @@ def get_distance_from_google_routes(origin, destination):
         print(f"❌ Răspuns neașteptat de la API Routes: {e}")
 
     return 0
+
+def parse_email_content(email_body):
+    """
+    Parsează corpul emailului și returnează informațiile extrase cu regex.
+    Recunoaște câteva sinonime pentru termeni uzuali.
+    """
+    terms_mapping = {
+        "loading_location": [
+            r"(?:încărcare|incarcare|origin|from|origen)\s*:\s*(.+)",
+            re.IGNORECASE
+        ],
+        "unloading_location": [
+            r"(?:descărcare|descarcare|destination|destinatie|destinaţie|to|destino)\s*:\s*(.+)",
+            re.IGNORECASE
+        ],
+        "loading_date": [
+            r"(?:data\s*încărcare|data\s*incarcare|loading\s*date|fecha\s*de\s*carga)\s*:\s*(.+)",
+            re.IGNORECASE
+        ],
+        "unloading_date": [
+            r"(?:data\s*descărcare|data\s*descarcare|unloading\s*date|fecha\s*de\s*descarga)\s*:\s*(.+)",
+            re.IGNORECASE
+        ],
+        "price": [
+            r"(?:preț|pret|price|precio)\s*:\s*([\d.,]+)\s*(?:eur|ron|usd|euro)?",
+            re.IGNORECASE
+        ],
+        "distance_km": [
+            r"(?:distanță|distanta|distance|km|kms)\s*:\s*([\d.,]+)",
+            re.IGNORECASE
+        ],
+        "weight_kg": [
+            r"(?:greutate|weight|peso)\s*:\s*([\d.,]+)",
+            re.IGNORECASE
+        ],
+        "cargo_details": [
+            r"(?:cargo\s*details|detalii\s*mărfă|detalii\s*marfa)\s*:\s*(.+)",
+            re.IGNORECASE
+        ],
+        "observations": [
+            r"(?:observații|observatii|observations|notas)\s*:\s*(.+)",
+            re.IGNORECASE
+        ],
+    }
+
+    details = {}
+    for key, (pattern, flags) in terms_mapping.items():
+        match = re.search(pattern, email_body, flags)
+        if match:
+            details[key] = match.group(1).strip()
+
+    return details
+
 
 
 def calculate_best_offer():
