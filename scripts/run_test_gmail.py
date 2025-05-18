@@ -1,27 +1,30 @@
+# run_test_gmail.py
+
 import os
 import sys
 import django
 import base64
 import re
 from datetime import datetime
-from offers.utils import recommend_price_simple, get_distance_from_google_routes
 
-
-# Configurare Django
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-PROJECT_DIR = os.path.join(BASE_DIR, 'backend')
+# 🔧 Adăugăm directorul principal în sys.path
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # => Licence_AI
 sys.path.append(BASE_DIR)
-sys.path.append(PROJECT_DIR)
+
+# Setăm setările Django
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'backend.settings')
 
+# Inițializăm Django
 try:
     django.setup()
 except Exception as e:
     print(f"Eroare la configurarea Django: {e}")
     sys.exit(1)
 
+# ✅ Acum importurile vor merge
 from offers.models import Offer
-from offers.gmail_service import get_gmail_service
+from offers.utils import recommend_price_simple, get_distance_from_google_routes
+from offers.gmail.service import get_gmail_service
 
 
 def parse_email_content(email_body):
@@ -33,11 +36,11 @@ def parse_email_content(email_body):
     # Sinonime mai largi (cu și fără diacritice):
     terms_mapping = {
         "loading_location": [
-            r"(?:încărcare|incarcare|origin|from|origen)\s*:\s*(.+)",
+            r"(?:încărcare|incarcare|origin|from|loading|origen)\s*:\s*(.+)",
             re.IGNORECASE
         ],
         "unloading_location": [
-            r"(?:descărcare|descarcare|destination|destinatie|destinaţie|to|destino)\s*:\s*(.+)",
+            r"(?:descărcare|descarcare|destination|destinatie|destinaţie|to|destino|unloading)\s*:\s*(.+)",
             re.IGNORECASE
         ],
         "loading_date": [
