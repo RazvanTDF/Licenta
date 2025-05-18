@@ -16,8 +16,17 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from django.contrib import admin
+from django.urls import path, include
+from user.views import RegisterView, LoginView, UserProfileView
+from user.views import ApproveUserView
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('offers.urls')),  # Include rutele din aplicația offers
+    path('', include('offers.urls')),  # păstrăm rutele de oferte
+    path('api/auth/register/', RegisterView.as_view(), name='register'),
+    path('api/auth/login/', LoginView.as_view(), name='login'),
+    path('api/user-profile/', UserProfileView.as_view(), name='user-profile'),
+    path('api/users/<int:user_id>/approve/', ApproveUserView.as_view(), name='approve-user'),
 ]

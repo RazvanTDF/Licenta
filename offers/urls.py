@@ -1,8 +1,8 @@
 from django.urls import path
-from .views import index
-from .api_views import OfferListView
+from .api_views import OfferListView, OfferDetailView, OfferExportView
 
 urlpatterns = [
-    path('', index, name='index'),  # returnează JSON cu toate ofertele + best
-    path('api/offers/', OfferListView.as_view(), name='offer-list'),  # API REST
+    path('api/offers/', OfferListView.as_view(), name='offer-list'),
+    path('api/offers/<int:id>/', OfferDetailView.as_view(), name='offer-detail'),
+    path('api/offers/export/', OfferExportView.as_view(), name='offer-export'),
 ]
