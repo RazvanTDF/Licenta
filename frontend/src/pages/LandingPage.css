@@ -1,0 +1,143 @@
+/* Fundalul cu imagine */
+.landing-page {
+    background-image: url('/bg.png');
+    background-size: cover;
+    background-position: center;
+    height: 100vh;
+    position: relative;
+    font-family: 'Helvetica Neue', sans-serif;
+    color: white;
+  }
+  
+  /* Overlay cu blur și culoare */
+  .overlay {
+    background-color: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  /* === NAVBAR === */
+  .navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 3rem;
+  }
+  
+  .logo-section {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  
+  .logo {
+    height: 50px;
+    border-radius: 10px;
+  }
+  
+  .brand {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #83A6CE;
+  }
+  
+  .nav-links {
+    display: flex;
+    gap: 1.5rem;
+  }
+  
+  .nav-btn {
+    color: white;
+    text-decoration: none;
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+    border-radius: 30px;
+    transition: background 0.3s ease;
+  }
+  
+  .nav-btn:hover {
+    background-color: #26415E;
+  }
+  
+  /* === CONTINUT CENTRAL === */
+  .main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 0 1rem;
+  }
+  
+  .main-content h1 {
+    font-size: 3.5rem;
+    margin-bottom: 1rem;
+    color: #83A6CE;
+  }
+  
+  .main-content p {
+    font-size: 1.25rem;
+    max-width: 700px;
+    color: #dce3ed;
+    margin-bottom: 2rem;
+  }
+  
+  .buttons {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  
+  .btn {
+    padding: 0.8rem 2rem;
+    border-radius: 999px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+    font-size: 1rem;
+  }
+  
+  .btn.primary {
+    background-color: #83A6CE;
+    color: #0B1B32;
+  }
+  
+  .btn.secondary {
+    background-color: transparent;
+    border: 2px solid #83A6CE;
+    color: white;
+  }
+  
+  .btn:hover {
+    transform: scale(1.05);
+    background-color: #26415E;
+    color: white;
+  }
+  
+  /* === RESPONSIVITATE === */
+  @media (max-width: 768px) {
+    .main-content h1 {
+      font-size: 2.2rem;
+    }
+  
+    .main-content p {
+      font-size: 1rem;
+    }
+  
+    .navbar {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  
+    .nav-links {
+      flex-direction: column;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+    }
+  }
+  
