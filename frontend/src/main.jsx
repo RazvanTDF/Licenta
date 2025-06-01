@@ -7,6 +7,8 @@ import UserProfilePage from './pages/UserProfilePage.jsx';
 import AdminDispeceriPage from './pages/AdminDispeceriPage.jsx';
 import PrivateRoute from './components/PrivateRoute.jsx';
 import LandingPage from './pages/LandingPage.jsx';
+import Workspace from './pages/Workspace.jsx';
+
 
 
 ReactDOM.createRoot(document.getElementById('root')).render(
@@ -30,6 +32,14 @@ ReactDOM.createRoot(document.getElementById('root')).render(
           element={
             <PrivateRoute>
               <AdminDispeceriPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/workspace"
+          element={
+            <PrivateRoute>
+              <Workspace />
             </PrivateRoute>
           }
         />
