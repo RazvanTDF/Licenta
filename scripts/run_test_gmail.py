@@ -297,6 +297,13 @@ def process_email_advanced():
                     ).exists():
                         print("Această ofertă există deja în baza de date.")
                     else:
+                        #asigur dispecer
+                        from django.contrib.auth.models import User
+                        try:
+                            dispecer_user=User.objects.get(email="exampleofferstester@gmail.com")
+                        except User.DoesNotExist:
+                            print("Dispecerul nu a fost găsit în baza de date. Verifica daca a fost creat contul")
+                            continue
                         # 5. Salvăm oferta nouă
                         offer = Offer(
                             loading_location=loading_location,
@@ -310,6 +317,7 @@ def process_email_advanced():
                             ref_number=f"REF{datetime.now().strftime('%Y%m%d%H%M%S')}",
                             loading_date=loading_date,
                             unloading_date=unloading_date,
+                            user=dispecer_user,  # Setăm dispecerul ca utilizator al ofertei
                         )
                         offer.save()
 

@@ -1,50 +1,205 @@
+/* Workspace CSS */
+
 .workspace {
-  padding: 2rem;
-  font-family: sans-serif;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: #f3f6fa;
   color: #0B1B32;
 }
 
-.workspace h2 {
-  font-size: 2rem;
-  margin-bottom: 1rem;
-}
-
-.workspace-controls {
+.workspace-navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  padding: 1rem 3rem;
   display: flex;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
+  justify-content: space-between;
   align-items: center;
+  z-index: 10;
+  background: linear-gradient(to bottom, #83A6CE, rgba(255, 255, 255, 0));
+  color: white;
 }
 
-.workspace-controls button {
+.workspace-title {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: white;
+}
+
+.workspace-top-bar {
+  margin-top: 100px;
+  padding: 0 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.filters-toggle-btn,
+.refresh-btn,
+.auto-refresh-btn {
   background-color: #83A6CE;
-  color: #fff;
+  border: none;
+  color: #0B1B32;
   padding: 0.5rem 1rem;
   border-radius: 8px;
-  border: none;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.filters-toggle-btn:hover,
+.refresh-btn:hover,
+.auto-refresh-btn:hover {
+  background-color: #26415E;
+  color: white;
+}
+
+.auto-refresh-btn.active {
+  background-color: #26415E;
+  color: white;
+}
+
+.workspace-body {
+  padding: 2rem;
+  flex: 1;
+}
+
+.workspace-body table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+}
+
+.workspace-body th,
+.workspace-body td {
+  padding: 0.75rem;
+  border-bottom: 1px solid #ccc;
+  text-align: center;
+}
+
+.workspace-body tr:hover {
+  background-color: #eaf1f8;
   cursor: pointer;
 }
 
-.workspace-controls label {
-  font-size: 0.95rem;
+.pagination {
   display: flex;
+  justify-content: flex-start;
   align-items: center;
+  margin-top: 1rem;
   gap: 0.5rem;
 }
 
-table {
-  width: 100%;
-  border-collapse: collapse;
-  background: white;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+.pagination button {
+  padding: 0.4rem 0.7rem;
+  background-color: #e2e8f0;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  color: #0B1B32;
 }
 
-th, td {
-  padding: 0.75rem;
+.pagination button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.help-link {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 1rem;
+}
+
+.help-button {
+  background-color: #e2e8f0;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  text-decoration: none;
+  color: #0B1B32;
+  font-weight: bold;
+}
+
+.help-button:hover {
+  background-color: #cbd5e1;
+}
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 20;
+}
+
+.modal-content {
+  background-color: white;
+  padding: 2rem;
+  border-radius: 12px;
+  max-width: 600px;
+  width: 90%;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.profile-wrapper {
+  position: relative;
+}
+
+.profile-dropdown {
+  position: absolute;
+  top: 130%;
+  right: 0;
+  background-color: white;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  z-index: 999;
+}
+
+.profile-dropdown a {
+  text-decoration: none;
+  color: #0B1B32;
+  padding: 0.3rem 0;
+  transition: color 0.2s ease;
+}
+
+.profile-dropdown a:hover {
+  color: #26415E;
+}
+
+.profile-icon {
+  background: none;
+  border: none;
+  font-size: 1.4rem;
+  cursor: pointer;
+}
+
+/* Footer fix */
+.footer-left {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start; /* aliniere la stânga */
+  justify-content: flex-start;
+  padding: 0;
+  margin: 0;
   text-align: left;
-  border-bottom: 1px solid #ddd;
+}
+.footer-left a {
+  color: #0B1B32;
+  text-decoration: none;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+.footer-left a:hover {
+  color: #26415E;
 }
 
-thead {
-  background-color: #E6F0FA;
-}
+

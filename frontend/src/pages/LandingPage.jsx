@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import "./LandingPage.css";
+import Footer from "../components/Footer";
 
 const LandingPage = () => {
   // Scroll reveal
@@ -116,22 +117,7 @@ const LandingPage = () => {
           TdF este mai mult decât o aplicație – este un partener inteligent care îți optimizează munca, îți salvează timp prețios și îți oferă un avantaj competitiv real. Este alegerea modernă pentru dispecerii care vor să lucreze mai organizat, mai rapid și mai eficient.
         </p>
       </section>
-
-      {/* Footer */}
-      <footer className="footer">
-        <div className="footer-left">
-          <img src="/logo.jpg" alt="TdF Full Logo" className="footer-logo" />
-          <p>📍 Timișoara, România</p>
-        </div>
-        <div className="footer-center">
-          <p>© 2025 Todor Ovidiu-Răzvan. Toate drepturile rezervate.</p>
-        </div>
-        <div className="footer-right">
-          <p><strong>Contact</strong></p>
-          <p>razvantdf@gmail.com</p>
-          <p>ovidiu.todor@student.upt.ro</p>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 };

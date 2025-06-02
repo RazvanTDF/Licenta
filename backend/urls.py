@@ -29,4 +29,5 @@ urlpatterns = [
     path('api/auth/login/', LoginView.as_view(), name='login'),
     path('api/user-profile/', UserProfileView.as_view(), name='user-profile'),
     path('api/users/<int:user_id>/approve/', ApproveUserView.as_view(), name='approve-user'),
+    path('api/', include('offers.urls')),
 ]

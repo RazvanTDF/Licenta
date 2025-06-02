@@ -6,7 +6,7 @@ const Navbar = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem("accessToken"); // ✅ cheie corectă
     if (!token) return;
 
     fetch("http://localhost:8000/api/user-profile/", {
@@ -18,7 +18,7 @@ const Navbar = () => {
   }, []);
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
+    localStorage.removeItem("accessToken"); // ✅ cheie corectă
     navigate("/auth");
   };
 
@@ -26,29 +26,46 @@ const Navbar = () => {
     <nav style={{
       display: "flex",
       justifyContent: "space-between",
+      alignItems: "center",
       padding: "1rem",
-      backgroundColor: "#333",
+      backgroundColor: "#26415E",
       color: "#fff"
     }}>
-      <h3>TransportApp</h3>
-      <div style={{ display: "flex", gap: "1rem" }}>
-        {!role && <Link to="/auth" style={{ color: "white" }}>Login</Link>}
+      <h3 style={{ margin: 0 }}>TransportApp</h3>
+
+      <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
+        {!role && (
+          <Link to="/auth" style={{ color: "white", textDecoration: "none" }}>Login</Link>
+        )}
 
         {role === "dispecer" && (
           <>
-            <Link to="/offers" style={{ color: "white" }}>Oferte</Link>
-            <Link to="/offers/export" style={{ color: "white" }}>Export</Link>
-            <Link to="/profile" style={{ color: "white" }}>Profil</Link>
-            <button onClick={handleLogout}>Logout</button>
+            <Link to="/workspace" style={{ color: "white", textDecoration: "none" }}>Workspace</Link>
+            <Link to="/profile" style={{ color: "white", textDecoration: "none" }}>Profil</Link>
           </>
         )}
 
         {role === "admin" && (
           <>
-            <Link to="/admin/dispeceri" style={{ color: "white" }}>Admin Panel</Link>
-            <Link to="/profile" style={{ color: "white" }}>Profil</Link>
-            <button onClick={handleLogout}>Logout</button>
+            <Link to="/admin/dispeceri" style={{ color: "white", textDecoration: "none" }}>Admin Panel</Link>
+            <Link to="/profile" style={{ color: "white", textDecoration: "none" }}>Profil</Link>
           </>
+        )}
+
+        {role && (
+          <button
+            onClick={handleLogout}
+            style={{
+              backgroundColor: "#C94F4F",
+              color: "white",
+              border: "none",
+              padding: "8px 14px",
+              borderRadius: "6px",
+              cursor: "pointer"
+            }}
+          >
+            Logout
+          </button>
         )}
       </div>
     </nav>

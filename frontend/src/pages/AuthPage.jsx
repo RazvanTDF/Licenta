@@ -49,8 +49,8 @@ const AuthPage = () => {
       }
 
       if (isLogin) {
-        localStorage.setItem("token", data.access);
-        navigate("/profile");
+        localStorage.setItem("accessToken", data.access);
+        navigate("/Workspace");
       } else {
         alert("Cont creat cu succes! Acum te poți loga.");
         setIsLogin(true);
