@@ -10,6 +10,12 @@ const Workspace = () => {
   const [selectedOffer, setSelectedOffer] = useState(null);
   const [showDropdown, setShowDropdown] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const [showFilters, setShowFilters] = useState(false);
+  const [filters, setFilters] = useState({
+    loading: "",
+    unloading: "",
+    hasPrice: null,
+  });
   const offersPerPage = 10;
 
   const fetchOffers = async () => {
@@ -41,10 +47,35 @@ const Workspace = () => {
     return () => clearInterval(interval);
   }, [autoRefresh]);
 
-  const paginatedOffers = offers.slice(
+  const filteredOffers = offers.filter((offer) => {
+    const loadingMatch = filters.loading
+      ? offer.loading_location.toLowerCase().includes(filters.loading.toLowerCase())
+      : true;
+    const unloadingMatch = filters.unloading
+      ? offer.unloading_location.toLowerCase().includes(filters.unloading.toLowerCase())
+      : true;
+    const priceMatch = filters.hasPrice === null
+      ? true
+      : filters.hasPrice
+      ? offer.price > 0
+      : offer.price === 0;
+    return loadingMatch && unloadingMatch && priceMatch;
+  });
+
+  const paginatedOffers = filteredOffers.slice(
     (currentPage - 1) * offersPerPage,
     currentPage * offersPerPage
   );
+
+  const handleFilterChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    const val = type === "checkbox" ? checked : value;
+    setFilters((prev) => ({ ...prev, [name]: val }));
+  };
+
+  const removeFilter = (key) => {
+    setFilters((prev) => ({ ...prev, [key]: key === "hasPrice" ? null : "" }));
+  };
 
   return (
     <div className="workspace">
@@ -89,22 +120,95 @@ const Workspace = () => {
 
       <div className="workspace-top-bar">
         <div className="filters-box">
-          <button className="filters-toggle-btn">🔍 Filtre</button>
+          <button
+            className="filters-toggle-btn"
+            onClick={() => setShowFilters((prev) => !prev)}
+          >
+            Filtre
+          </button>
+          {showFilters && (
+            <div className="filter-panel">
+              <input
+                type="text"
+                name="loading"
+                placeholder="Pornire..."
+                value={filters.loading}
+                onChange={handleFilterChange}
+              />
+              <input
+                type="text"
+                name="unloading"
+                placeholder="Destinație..."
+                value={filters.unloading}
+                onChange={handleFilterChange}
+              />
+              <label>
+                <input
+                  type="checkbox"
+                  name="hasPrice"
+                  checked={filters.hasPrice === true}
+                  onChange={() =>
+                    setFilters((prev) => ({
+                      ...prev,
+                      hasPrice: prev.hasPrice === true ? null : true,
+                    }))
+                  }
+                />
+                Cu preț
+              </label>
+              <label>
+                <input
+                  type="checkbox"
+                  name="hasPrice"
+                  checked={filters.hasPrice === false}
+                  onChange={() =>
+                    setFilters((prev) => ({
+                      ...prev,
+                      hasPrice: prev.hasPrice === false ? null : false,
+                    }))
+                  }
+                />
+                Fără preț din ofertă
+              </label>
+            </div>
+          )}
+
+          <div className="active-filters">
+            {filters.loading && (
+              <span onClick={() => removeFilter("loading")}>Pornire: {filters.loading} ✖</span>
+            )}
+            {filters.unloading && (
+              <span onClick={() => removeFilter("unloading")}>Destinație: {filters.unloading} ✖</span>
+            )}
+            {filters.hasPrice === true && (
+              <span onClick={() => removeFilter("hasPrice")}>Cu preț ✖</span>
+            )}
+            {filters.hasPrice === false && (
+              <span onClick={() => removeFilter("hasPrice")}>Fără preț ✖</span>
+            )}
+          </div>
         </div>
 
         <div className="refresh-controls">
-          <button className="refresh-btn" onClick={fetchOffers}>🔄 Refresh</button>
-          <button
-            className={`auto-refresh-btn ${autoRefresh ? "active" : ""}`}
-            onClick={() => setAutoRefresh(!autoRefresh)}
-          >
-            {autoRefresh ? "Auto-refresh ON" : "Auto-refresh OFF"}
-          </button>
+          <div className="toggle-buttons">
+            <button
+              className={`toggle-btn ${!autoRefresh ? "active" : ""}`}
+              onClick={() => setAutoRefresh(false)}
+            >
+              Refresh
+            </button>
+            <button
+              className={`toggle-btn ${autoRefresh ? "active" : ""}`}
+              onClick={() => setAutoRefresh(true)}
+            >
+              Auto
+            </button>
+          </div>
         </div>
       </div>
 
       <div className="workspace-body">
-        <p>Total: {offers.length} oferte primite</p>
+        <p>{filteredOffers.length} oferte afișate</p>
 
         {loading ? (
           <p>Se încarcă...</p>
@@ -137,40 +241,39 @@ const Workspace = () => {
               </tbody>
             </table>
 
-            <div className="pagination">
-              <button onClick={() => setCurrentPage(1)} disabled={currentPage === 1}>« Prima</button>
-              <button onClick={() => setCurrentPage((prev) => prev - 1)} disabled={currentPage === 1}>‹</button>
-              <span>Pagina {currentPage} din {Math.ceil(offers.length / offersPerPage)}</span>
-              <button onClick={() => setCurrentPage((prev) => prev + 1)} disabled={currentPage === Math.ceil(offers.length / offersPerPage)}>›</button>
-              <button onClick={() => setCurrentPage(Math.ceil(offers.length / offersPerPage))} disabled={currentPage === Math.ceil(offers.length / offersPerPage)}>Ultima »</button>
+            <div className="pagination-help-row">
+              <div className="pagination">
+                <button onClick={() => setCurrentPage(1)} disabled={currentPage === 1}>« Prima</button>
+                <button onClick={() => setCurrentPage((prev) => prev - 1)} disabled={currentPage === 1}>‹</button>
+                <span>Pagina {currentPage} din {Math.ceil(filteredOffers.length / offersPerPage)}</span>
+                <button onClick={() => setCurrentPage((prev) => prev + 1)} disabled={currentPage === Math.ceil(filteredOffers.length / offersPerPage)}>›</button>
+                <button onClick={() => setCurrentPage(Math.ceil(filteredOffers.length / offersPerPage))} disabled={currentPage === Math.ceil(filteredOffers.length / offersPerPage)}>Ultima »</button>
+              </div>
+              <a href="/help" className="help-button">❓ Ajutor</a>
             </div>
           </>
         )}
 
-        <div className="help-link">
-          <a href="/help" className="help-button">❓ Ajutor</a>
-        </div>
-      </div>
-
-      {selectedOffer && (
-        <div className="modal-backdrop" onClick={() => setSelectedOffer(null)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <h3>Detalii ofertă</h3>
-            <p><strong>Cod referință:</strong> {selectedOffer.ref_number}</p>
-            <p><strong>Loc încărcare:</strong> {selectedOffer.loading_location}</p>
-            <p><strong>Loc descărcare:</strong> {selectedOffer.unloading_location}</p>
-            <p><strong>Distanță:</strong> {selectedOffer.distance_km} km</p>
-            <p><strong>Greutate:</strong> {selectedOffer.weight_kg} kg</p>
-            <p><strong>Data încărcare:</strong> {selectedOffer.loading_date?.split("T")[0]}</p>
-            <p><strong>Data descărcare:</strong> {selectedOffer.unloading_date?.split("T")[0]}</p>
-            <p><strong>Preț:</strong> {selectedOffer.price > 0 ? selectedOffer.price + " €" : "—"}</p>
-            <p><strong>Preț recomandat:</strong> {selectedOffer.recommended_price || "—"}</p>
-            <p><strong>Detalii marfă:</strong> {selectedOffer.cargo_details}</p>
-            <p><strong>Observații:</strong> {selectedOffer.observations}</p>
-            <button onClick={() => setSelectedOffer(null)}>Închide</button>
+        {selectedOffer && (
+          <div className="modal-backdrop" onClick={() => setSelectedOffer(null)}>
+            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+              <h3>Detalii ofertă</h3>
+              <p><strong>Cod referință:</strong> {selectedOffer.ref_number}</p>
+              <p><strong>Loc încărcare:</strong> {selectedOffer.loading_location}</p>
+              <p><strong>Loc descărcare:</strong> {selectedOffer.unloading_location}</p>
+              <p><strong>Distanță:</strong> {selectedOffer.distance_km} km</p>
+              <p><strong>Greutate:</strong> {selectedOffer.weight_kg} kg</p>
+              <p><strong>Data încărcare:</strong> {selectedOffer.loading_date?.split("T")[0]}</p>
+              <p><strong>Data descărcare:</strong> {selectedOffer.unloading_date?.split("T")[0]}</p>
+              <p><strong>Preț:</strong> {selectedOffer.price > 0 ? selectedOffer.price + " €" : "—"}</p>
+              <p><strong>Preț recomandat:</strong> {selectedOffer.recommended_price || "—"}</p>
+              <p><strong>Detalii marfă:</strong> {selectedOffer.cargo_details}</p>
+              <p><strong>Observații:</strong> {selectedOffer.observations}</p>
+              <button onClick={() => setSelectedOffer(null)}>Închide</button>
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
       <Footer />
     </div>
