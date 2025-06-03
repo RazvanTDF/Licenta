@@ -1,0 +1,124 @@
+.auth-wrapper {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, #E6E6E6, #A8DADC);
+  animation: fadeIn 1.2s ease-in-out;
+}
+
+.auth-card {
+  background: white;
+  padding: 3rem 2.5rem;
+  border-radius: 20px;
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 400px;
+  transition: transform 0.4s ease;
+  animation: slideUp 1s ease;
+}
+
+.auth-card:hover {
+  transform: translateY(-4px);
+}
+
+.auth-card h2 {
+  font-size: 1.8rem;
+  color: #26415E;
+  margin-bottom: 1.2rem;
+  text-align: center;
+}
+
+.auth-card form {
+  display: flex;
+  flex-direction: column;
+}
+
+.auth-card input {
+  margin-bottom: 1rem;
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  transition: border 0.3s ease, box-shadow 0.3s ease;
+  font-size: 1rem;
+}
+
+.auth-card input:focus {
+  border-color: #2A9D8F;
+  box-shadow: 0 0 0 3px rgba(42, 157, 143, 0.3);
+  outline: none;
+}
+
+.auth-card button[type="submit"] {
+  background: #2A9D8F;
+  color: white;
+  font-weight: bold;
+  padding: 0.75rem;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background 0.3s ease;
+}
+
+.auth-card button[type="submit"]:hover {
+  background: #1D5C5F;
+}
+
+.auth-card p {
+  text-align: center;
+  font-size: 0.9rem;
+  margin-top: 1rem;
+  color: #26415E;
+}
+
+.auth-card p[style*="red"] {
+  margin-top: 0.5rem;
+  font-size: 0.85rem;
+}
+
+.auth-card p:hover {
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+@keyframes slideUp {
+  0% { transform: translateY(60px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+
+/* Dark mode */
+body.dark .auth-wrapper {
+  background: linear-gradient(135deg, #0B1B32, #1D5C5F);
+}
+
+body.dark .auth-card {
+  background: #1a2430;
+  color: #dce3ed;
+}
+
+body.dark .auth-card h2,
+body.dark .auth-card p {
+  color: #dce3ed;
+}
+
+body.dark .auth-card input {
+  background: #2c3b4f;
+  border: 1px solid #555;
+  color: #eee;
+}
+
+body.dark .auth-card input::placeholder {
+  color: #bbb;
+}
+
+body.dark .auth-card button[type="submit"] {
+  background: #83A6CE;
+  color: #0B1B32;
+}

@@ -1,0 +1,56 @@
+/* === HELP PAGE === */
+.help-page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: var(--bg-color, #f5f7fa);
+  color: var(--text-color, #0B1B32);
+}
+
+.help-content {
+  max-width: 1000px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
+  line-height: 1.6;
+  font-size: 1rem;
+  color: #0B1B32;
+}
+
+.help-content h1 {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+  color: #26415E;
+  text-align: center;
+}
+
+.help-content h2 {
+  font-size: 1.4rem;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  color: #26415E;
+}
+
+.help-content p,
+.help-content li {
+  margin-bottom: 1rem;
+}
+
+.help-content ul {
+  padding-left: 1.5rem;
+  list-style-type: disc;
+}
+
+/* === DARK MODE === */
+body.dark .help-content {
+  background: #1a2430;
+  color: #dce3ed;
+  box-shadow: 0 6px 20px rgba(255, 255, 255, 0.08);
+}
+
+body.dark .help-content h1,
+body.dark .help-content h2 {
+  color: #dce3ed;
+}

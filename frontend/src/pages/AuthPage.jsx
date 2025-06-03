@@ -1,5 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import './AuthPage.css';
+
 
 const AuthPage = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -10,6 +12,14 @@ const AuthPage = () => {
   });
   const [error, setError] = useState("");
   const navigate = useNavigate();
+
+  // 🔒 Dacă există deja token, redirecționează imediat către Workspace
+  useEffect(() => {
+    const token = localStorage.getItem("accessToken");
+    if (token) {
+      navigate("/workspace", { replace: true });
+    }
+  }, [navigate]);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -50,7 +60,7 @@ const AuthPage = () => {
 
       if (isLogin) {
         localStorage.setItem("accessToken", data.access);
-        navigate("/Workspace");
+        navigate("/workspace", { replace: true }); // 🧼 curăță istoricul ca să nu mai poți da „Back”
       } else {
         alert("Cont creat cu succes! Acum te poți loga.");
         setIsLogin(true);
@@ -61,7 +71,8 @@ const AuthPage = () => {
   };
 
   return (
-    <div style={{ maxWidth: 400, margin: "auto", paddingTop: 80 }}>
+  <div className="auth-wrapper">
+    <div className="auth-card">
       <h2>{isLogin ? "Login" : "Înregistrare"}</h2>
       <form onSubmit={handleSubmit}>
         <input
@@ -92,11 +103,15 @@ const AuthPage = () => {
         </button>
       </form>
       {error && <p style={{ color: "red" }}>{error}</p>}
-      <p onClick={toggleMode} style={{ cursor: "pointer", marginTop: 10 }}>
-        {isLogin ? "Nu ai cont? Înregistrează-te" : "Ai deja cont? Login"}
+      <p onClick={toggleMode}>
+        {isLogin
+          ? "Nu ai cont? Înregistrează-te"
+          : "Ai deja cont? Login"}
       </p>
     </div>
-  );
+  </div>
+);
+
 };
 
 export default AuthPage;

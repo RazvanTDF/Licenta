@@ -140,22 +140,25 @@
 }
 
 .active-filters {
-  margin-top: 1.5rem;
-  padding: 0.5rem 1rem;
-  background-color: #f8f9fb;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  position: absolute;
+  top: calc(100% + 8px); /* puțin sub bara cu filtre */
+  left: 5%;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  z-index: 100;
 }
 
 .filter-tag {
   background-color: #dbe9ff;
   color: #0B1B32;
   border-radius: 999px;
-  padding: 0.4rem 1rem;
-  font-size: 0.9rem;
+  padding: 0.4rem 0.9rem;
+  font-size: 0.85rem;
   display: flex;
   align-items: center;
-  gap: 0.3rem;
+  gap: 0.4rem;
+  cursor: pointer;
 }
 .filter-sidebar {
   position: fixed;
@@ -265,6 +268,11 @@ th, td {
   text-align: center;
   font-size: 0.95rem;
   border-bottom: 1px solid #eee;
+}
+th {
+  cursor: pointer;
+  user-select: none;
+  position: relative;
 }
 
 tbody tr:hover {
@@ -425,4 +433,33 @@ body.dark .filter-tag button {
   .navbar-center {
     font-size: 1.1rem;
   }
+}
+table tbody {
+  display: block;
+  min-height: 580px; /* sau cât ai nevoie */
+}
+
+table thead,
+table tbody tr {
+  display: table;
+  width: 100%;
+  table-layout: fixed;
+}
+.sort-icons {
+  margin-left: 6px;
+  font-size: 0.8rem;
+  display: inline-flex;
+  flex-direction: row;
+  line-height: 0.8;
+}
+
+.sort-icons span {
+  opacity: 0.4;
+  font-size: 0.8rem;
+  line-height: 1rem;
+}
+
+.sort-icons .active {
+  opacity: 1;
+  color: #0B1B32;
 }

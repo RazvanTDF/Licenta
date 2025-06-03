@@ -22,12 +22,14 @@ const LandingPage = () => {
     return () => window.removeEventListener("scroll", revealOnScroll);
   }, []);
 
-  // Dark mode logic
+  // Dark mode logic + background video
   const [darkMode, setDarkMode] = useState(() => {
     return localStorage.getItem("darkMode") === "true";
   });
 
-  const [heroImage, setHeroImage] = useState(darkMode ? "/dbg.png" : "/bg.png");
+  const [videoSource, setVideoSource] = useState(
+    darkMode ? "/bg-dark.mp4" : "/bg-video.mp4"
+  );
 
   useEffect(() => {
     const root = document.documentElement;
@@ -36,20 +38,22 @@ const LandingPage = () => {
     } else {
       root.classList.remove("dark");
     }
+
     localStorage.setItem("darkMode", darkMode);
+
+    // Tranziție între videouri
+    const timeout = setTimeout(() => {
+      setVideoSource(darkMode ? "/bg-dark.mp4" : "/bg-video.mp4");
+    }, 300);
+
+    return () => clearTimeout(timeout);
   }, [darkMode]);
 
   const toggleDarkMode = () => {
     document.body.classList.add("transitioning");
 
     setTimeout(() => {
-      const newDarkMode = !darkMode;
-      setDarkMode(newDarkMode);
-      
-
-      setTimeout(() => {
-        setHeroImage(newDarkMode ? "/dbg.png" : "/bg.png");
-      }, 300);
+      setDarkMode((prev) => !prev);
 
       setTimeout(() => {
         document.body.classList.remove("transitioning");
@@ -73,13 +77,18 @@ const LandingPage = () => {
         </div>
       </nav>
 
-      {/* Hero Section cu imagine de fundal fluidă */}
+      {/* Hero Section cu fundal video */}
       <section className="hero">
-        <img
-          src={heroImage}
-          alt="Hero Background"
+        <video
           className="hero-bg"
-        />
+          autoPlay
+          loop
+          muted
+          playsInline
+          key={videoSource}
+        >
+          <source src={videoSource} type="video/mp4" />
+        </video>
         <div className="hero-content">
           <h1>Transporte del Futuro</h1>
           <p className="motto">Ești gata să devii cel mai bun dispecer din firma ta?</p>
@@ -110,13 +119,12 @@ const LandingPage = () => {
       <section className="about reveal">
         <h2>Despre aplicație</h2>
         <p>
-          Transporte del Futuro este soluția digitală modernă concepută special pentru dispecerii din domeniul transporturilor. Într-un domeniu în care viteza de reacție și organizarea eficientă fac diferența, aplicația noastră transformă modul în care sunt gestionate ofertele de transport primite pe email.
+          Transporte del Futuro este soluția digitală modernă concepută special pentru dispecerii din domeniul transporturilor...
           <br /><br />
-          Dispecerii primesc zilnic zeci sau chiar sute de emailuri de la diferite depozite, fiecare conținând informații esențiale despre posibile transporturi. Procesul clasic – deschiderea manuală a fiecărui email, extragerea detaliilor relevante și evaluarea rapidă a ofertelor – este consumator de timp și supus erorilor. Transporte del Futuro vine să schimbe acest scenariu.
-          <br /><br />
-          TdF este mai mult decât o aplicație – este un partener inteligent care îți optimizează munca, îți salvează timp prețios și îți oferă un avantaj competitiv real. Este alegerea modernă pentru dispecerii care vor să lucreze mai organizat, mai rapid și mai eficient.
+          TdF este mai mult decât o aplicație – este un partener inteligent care îți optimizează munca, îți salvează timp prețios și îți oferă un avantaj competitiv real...
         </p>
       </section>
+
       <Footer />
     </div>
   );

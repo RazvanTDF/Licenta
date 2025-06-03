@@ -3,6 +3,7 @@ import "./Workspace.css";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 
+
 const Workspace = () => {
   const [offers, setOffers] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -11,6 +12,7 @@ const Workspace = () => {
   const [showDropdown, setShowDropdown] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [showFilters, setShowFilters] = useState(false);
+  const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
   const [filters, setFilters] = useState({
     loading: "",
     unloading: "",
@@ -62,10 +64,36 @@ const Workspace = () => {
     return loadingMatch && unloadingMatch && priceMatch;
   });
 
-  const paginatedOffers = filteredOffers.slice(
-    (currentPage - 1) * offersPerPage,
-    currentPage * offersPerPage
-  );
+  const sortedOffers = [...filteredOffers].sort((a, b) => {
+    if (!sortConfig.key) return 0;
+
+    const key = sortConfig.key;
+    const dir = sortConfig.direction === 'asc' ? 1 : -1;
+
+    if (a[key] < b[key]) return -1 * dir;
+      if (a[key] > b[key]) return 1 * dir;
+      return 0;
+  });
+
+
+  const paginatedOffers = sortedOffers.slice(
+  (currentPage - 1) * offersPerPage,
+  currentPage * offersPerPage
+);
+
+const handleSort = (key) => {
+  setSortConfig((prev) => {
+    if (prev.key === key) {
+      return {
+        key,
+        direction: prev.direction === 'asc' ? 'desc' : 'asc',
+      };
+    }
+    return { key, direction: 'asc' };
+  });
+};
+
+
 
   const handleFilterChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -81,7 +109,9 @@ const Workspace = () => {
     <div className="workspace">
       <nav className="navbar workspace-navbar">
         <div className="navbar-left">
-          <img src="/logo_min.jpg" alt="Logo" className="logo" />
+          <a href="/workspace">
+            <img src="/logo_min.jpg" alt="Logo" className="logo" style={{ cursor: "pointer" }} />
+          </a>
         </div>
 
         <div className="navbar-center">
@@ -172,22 +202,9 @@ const Workspace = () => {
               </label>
             </div>
           )}
-
-          <div className="active-filters">
-            {filters.loading && (
-              <span onClick={() => removeFilter("loading")}>Pornire: {filters.loading} ✖</span>
-            )}
-            {filters.unloading && (
-              <span onClick={() => removeFilter("unloading")}>Destinație: {filters.unloading} ✖</span>
-            )}
-            {filters.hasPrice === true && (
-              <span onClick={() => removeFilter("hasPrice")}>Cu preț ✖</span>
-            )}
-            {filters.hasPrice === false && (
-              <span onClick={() => removeFilter("hasPrice")}>Fără preț ✖</span>
-            )}
-          </div>
         </div>
+
+        {/* === ETICHETELE FILTRULUI ACTIV — mutat mai jos === */}
 
         <div className="refresh-controls">
           <div className="toggle-buttons">
@@ -207,6 +224,29 @@ const Workspace = () => {
         </div>
       </div>
 
+      <div className="active-filters">
+        {filters.loading && (
+          <span className="filter-tag" onClick={() => removeFilter("loading")}>
+            Pornire: {filters.loading} ✖
+          </span>
+        )}
+        {filters.unloading && (
+          <span className="filter-tag" onClick={() => removeFilter("unloading")}>
+            Destinație: {filters.unloading} ✖
+          </span>
+        )}
+        {filters.hasPrice === true && (
+          <span className="filter-tag" onClick={() => removeFilter("hasPrice")}>
+            Cu preț ✖
+          </span>
+        )}
+        {filters.hasPrice === false && (
+          <span className="filter-tag" onClick={() => removeFilter("hasPrice")}>
+            Fără preț ✖
+          </span>
+        )}
+      </div>
+
       <div className="workspace-body">
         <p>{filteredOffers.length} oferte afișate</p>
 
@@ -219,11 +259,27 @@ const Workspace = () => {
                 <tr>
                   <th>Pornire</th>
                   <th>Destinație</th>
-                  <th>Distanță (km)</th>
-                  <th>Greutate (kg)</th>
-                  <th>Data Încărcare</th>
-                  <th>Data Descărcare</th>
-                  <th>Preț</th>
+                  <th onClick={() => handleSort("distance_km")}>
+                    Distanță (km)
+                    <span className="sort-icons">
+                      <span className={sortConfig.key === "distance_km" && sortConfig.direction === "asc" ? "active" : ""}>↑</span>
+                      <span className={sortConfig.key === "distance_km" && sortConfig.direction === "desc" ? "active" : ""}>↓</span>
+                    </span>
+                  </th>
+                  <th onClick={() => handleSort("weight_kg")}>
+                    Greutate (kg)
+                    <span className="sort-icons">
+                      <span className={sortConfig.key === "weight_kg" && sortConfig.direction === "asc" ? "active" : ""}>↑</span>
+                      <span className={sortConfig.key === "weight_kg" && sortConfig.direction === "desc" ? "active" : ""}>↓</span>
+                    </span>
+                  </th>
+                  <th onClick={() => handleSort("price")}>
+                    Preț
+                    <span className="sort-icons">
+                      <span className={sortConfig.key === "price" && sortConfig.direction === "asc" ? "active" : ""}>↑</span>
+                      <span className={sortConfig.key === "price" && sortConfig.direction === "desc" ? "active" : ""}>↓</span>
+                    </span>
+                  </th>
                 </tr>
               </thead>
               <tbody>
