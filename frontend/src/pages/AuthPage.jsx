@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import './AuthPage.css';
-
+import { useLanguage } from "../contexts/LanguageContext";
+import translations from "../translations/translations";
+import "./AuthPage.css";
 
 const AuthPage = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -11,23 +12,38 @@ const AuthPage = () => {
     password: "",
   });
   const [error, setError] = useState("");
+  const [darkMode, setDarkMode] = useState(() => {
+    return localStorage.getItem("darkMode") === "true";
+  });
+
+  const { language } = useLanguage();
+  const t = translations[language];
   const navigate = useNavigate();
 
-  // 🔒 Dacă există deja token, redirecționează imediat către Workspace
+  // 🔒 Redirect dacă deja logat
   useEffect(() => {
     const token = localStorage.getItem("accessToken");
-    if (token) {
-      navigate("/workspace", { replace: true });
-    }
+    if (token) navigate("/workspace", { replace: true });
   }, [navigate]);
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
+  // Aplică dark mode pe body
+  useEffect(() => {
+    const body = document.body;
+    if (darkMode) {
+      body.classList.add("dark");
+    } else {
+      body.classList.remove("dark");
+    }
+    localStorage.setItem("darkMode", darkMode);
+  }, [darkMode]);
 
   const toggleMode = () => {
     setIsLogin(!isLogin);
     setError("");
+  };
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = async (e) => {
@@ -54,64 +70,70 @@ const AuthPage = () => {
       const data = await res.json();
 
       if (!res.ok) {
-        setError(data.error || "Eroare la autentificare.");
+        setError(data.error || t.genericError);
         return;
       }
 
       if (isLogin) {
         localStorage.setItem("accessToken", data.access);
-        navigate("/workspace", { replace: true }); // 🧼 curăță istoricul ca să nu mai poți da „Back”
+        navigate("/workspace", { replace: true });
       } else {
-        alert("Cont creat cu succes! Acum te poți loga.");
+        alert(t.successRegister);
         setIsLogin(true);
       }
     } catch (err) {
-      setError("Eroare de rețea.");
+      setError(t.networkError);
     }
   };
 
   return (
-  <div className="auth-wrapper">
-    <div className="auth-card">
-      <h2>{isLogin ? "Login" : "Înregistrare"}</h2>
-      <form onSubmit={handleSubmit}>
-        <input
-          name="username"
-          type="text"
-          placeholder="Username"
-          onChange={handleChange}
-          required
-        />
-        {!isLogin && (
+    <div className="auth-wrapper">
+      <div className="auth-card">
+        {/* ☀︎ / ☾ toggle */}
+        <button
+          className="mode-toggle"
+          onClick={() => setDarkMode((prev) => !prev)}
+          title="Switch theme"
+        >
+          {darkMode ? "☀︎" : "☾"}
+        </button>
+
+        <h2>{isLogin ? t.loginTitle : t.registerTitle}</h2>
+        <form onSubmit={handleSubmit} key={isLogin ? "login" : "register"}>
           <input
-            name="email"
-            type="email"
-            placeholder="Email"
+            name="username"
+            type="text"
+            placeholder={t.username}
             onChange={handleChange}
             required
           />
-        )}
-        <input
-          name="password"
-          type="password"
-          placeholder="Parolă"
-          onChange={handleChange}
-          required
-        />
-        <button type="submit">
-          {isLogin ? "Login" : "Register"}
-        </button>
-      </form>
-      {error && <p style={{ color: "red" }}>{error}</p>}
-      <p onClick={toggleMode}>
-        {isLogin
-          ? "Nu ai cont? Înregistrează-te"
-          : "Ai deja cont? Login"}
-      </p>
+          {!isLogin && (
+            <input
+              name="email"
+              type="email"
+              placeholder={t.email}
+              onChange={handleChange}
+              required
+            />
+          )}
+          <input
+            name="password"
+            type="password"
+            placeholder={t.password}
+            onChange={handleChange}
+            required
+          />
+          <button type="submit">
+            {isLogin ? t.loginBtn : t.registerBtn}
+          </button>
+        </form>
+        {error && <p style={{ color: "red" }}>{error}</p>}
+        <p onClick={toggleMode}>
+          {isLogin ? t.toggleToRegister : t.toggleToLogin}
+        </p>
+      </div>
     </div>
-  </div>
-);
-
+  );
 };
 
 export default AuthPage;

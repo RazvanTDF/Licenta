@@ -305,7 +305,7 @@ body:not(.transitioning) .hero-bg {
 
 /* DARK MODE FIXED */
 .dark body {
-  background-color: #0B1B32;
+  background-color: #1f2c3a;
   color: #dce3ed;
 }
 
