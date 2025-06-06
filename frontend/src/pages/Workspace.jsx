@@ -1,4 +1,4 @@
-// frontend/src/pages/Workspace.jsx
+// src/pages/Workspace.jsx
 
 import { useEffect, useState } from "react";
 import "./Workspace.css";
@@ -7,15 +7,10 @@ import { useLanguage } from "../contexts/LanguageContext";
 import translations from "../translations/translations";
 
 const Workspace = () => {
-  // Luăm `language` și `changeLanguage` din context
   const { language, changeLanguage } = useLanguage();
+  const translate = (key) => translations[language]?.[key] || key;
 
-  // Helper pentru traduceri
-  const translate = (key) => {
-    return translations[language]?.[key] || key;
-  };
-
-  // --- State‐uri pentru datele ofertei și interfață ---
+  // --- State pentru oferte și interfață ---
   const [offers, setOffers] = useState([]);
   const [darkMode, setDarkMode] = useState(
     () => localStorage.getItem("darkMode") === "true"
@@ -36,24 +31,22 @@ const Workspace = () => {
   });
   const offersPerPage = 10;
 
-  // State‐uri pentru câmpurile din modalul de reply
+  // State pentru câmpurile din modalul de reply
   const [vehiclePlate, setVehiclePlate] = useState("");
   const [vehicleLocation, setVehicleLocation] = useState("");
   const [offerPrice, setOfferPrice] = useState("");
 
-  // Când se schimbă `selectedOffer`, preumplem prețul și resetăm câmpurile
+  // Când se schimbă selectedOffer, preumplem prețul și resetăm câmpurile
   useEffect(() => {
     if (selectedOffer) {
-      setOfferPrice(
-        selectedOffer.price > 0 ? selectedOffer.price.toString() : ""
-      );
+      setOfferPrice(selectedOffer.price > 0 ? selectedOffer.price.toString() : "");
       setVehiclePlate("");
       setVehicleLocation("");
       setDistanceToLocation("");
     }
   }, [selectedOffer]);
 
-  // Funcție helper care construiește textul din textarea (reply preview)
+  // Funcție helper pentru textul din textarea (reply preview)
   const buildReplyText = () => {
     const fn = translations[language]?.replyTextPreview;
     if (typeof fn === "function") {
@@ -62,39 +55,58 @@ const Workspace = () => {
     return "";
   };
 
-  // Handler‐ul de “Reply” (construiește mailto:)
+  // Handler reply (mailto)
   const handleReply = () => {
-    if (!selectedOffer) return; // protecție
-    const subject = encodeURIComponent(
-      translate("reply") + " – " + selectedOffer.ref_number
-    );
+    if (!selectedOffer) return;
+    const subject = encodeURIComponent(translate("reply") + " – " + selectedOffer.ref_number);
     const body = encodeURIComponent(buildReplyText());
     window.location.href = `mailto:razvantdf@gmail.com?subject=${subject}&body=${body}`;
   };
 
-  // Handler‐ul “Delete” (dummy): elimină oferta din state
-  const handleDelete = (offerId) => {
-    setOffers((prev) => prev.filter((o) => o.id !== offerId));
-    setSelectedOffer(null);
+  // Handler delete – face DELETE la backend și elimină oferta din state
+  const handleDelete = async (offerId) => {
+    setLoading(true);
+    try {
+      const token = localStorage.getItem("accessToken");
+      if (!token) {
+        console.error("Nu există token în localStorage!");
+        return;
+      }
+
+      const res = await fetch(`http://localhost:8000/api/offers/${offerId}/`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (res.status === 204) {
+        setOffers((prev) => prev.filter((o) => o.id !== offerId));
+        setSelectedOffer(null);
+      } else {
+        const errorData = await res.json();
+        console.error("Eroare la DELETE:", errorData);
+      }
+    } catch (err) {
+      console.error("handleDelete:", err);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  // --- Funcția de fetch pentru oferte (normal, fără run_gmail) ---
+  // Fetch oferte normal (fără run_gmail)
   const fetchOffers = async () => {
     setLoading(true);
     try {
       const token = localStorage.getItem("accessToken");
       const res = await fetch("http://localhost:8000/api/offers/", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
       });
       if (!res.ok) {
         console.error("Offer list HTTP error:", await res.json());
         setOffers([]);
       } else {
         const data = await res.json();
-        // Dacă back‐end trimite array pur (fără paginare), `data` e array
-        // Dacă back‐end trimite obiect paginat, `data.results` e array
         const list = Array.isArray(data) ? data : data.results;
         setOffers(list);
       }
@@ -105,44 +117,40 @@ const Workspace = () => {
     }
   };
 
-  // --- Funcția de trigger pentru run_gmail=1 ---
+  // Trigger run_test_gmail și reîmprospătare oferte
   const triggerFetchEmails = async () => {
-  console.log("triggerFetchEmails() start");
-  setLoading(true);
-  try {
-    const token = localStorage.getItem("accessToken");
-    console.log("Token din localStorage:", token);
+    console.log("triggerFetchEmails() start");
+    setLoading(true);
+    try {
+      const token = localStorage.getItem("accessToken");
+      console.log("Token din localStorage:", token);
 
-    const res = await fetch("http://localhost:8000/api/offers/?run_gmail=1", {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+      const res = await fetch("http://localhost:8000/api/offers/?run_gmail=1", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
-    console.log("Răspuns HTTP (res.ok):", res.ok, "Status:", res.status);
-    const data = await res.json();
-    console.log("Date primite din backend:", data);
+      console.log("Răspuns HTTP (res.ok):", res.ok, "Status:", res.status);
+      const data = await res.json();
+      console.log("Date primite din backend:", data);
 
-    if (!res.ok) {
-      console.error("Eroare la rularea scriptului:", data);
-      return;
+      if (!res.ok) {
+        console.error("Eroare la rularea scriptului:", data);
+        return;
+      }
+
+      const list = Array.isArray(data) ? data : data.results;
+      console.log("Lista finală de offers:", list);
+      setOffers(list);
+      setCurrentPage(1);
+    } catch (err) {
+      console.error("Eroare la triggerFetchEmails:", err);
+    } finally {
+      setLoading(false);
+      console.log("triggerFetchEmails() end");
     }
+  };
 
-    // Dacă e paginare (obiect cu results), sau array simplu:
-    const list = Array.isArray(data) ? data : data.results;
-    console.log("Lista finală de offers:", list);
-
-    setOffers(list);
-  } catch (err) {
-    console.error("Eroare la triggerFetchEmails:", err);
-  } finally {
-    setLoading(false);
-    console.log("triggerFetchEmails() end");
-  }
-};
-
-
-  // La montare, preluăm ofertele inițial
+  // La montare, preluăm ofertele inițiale
   useEffect(() => {
     fetchOffers();
   }, []);
@@ -158,24 +166,20 @@ const Workspace = () => {
     return () => clearTimeout(timeout);
   }, [darkMode]);
 
-  // Auto‐refresh la 60s: apelăm fetchOffers (nu run_gmail) dacă e activat
+  // Auto‐refresh la 60s: apelăm fetchOffers dacă e activat
   useEffect(() => {
     if (!autoRefresh) return;
     const interval = setInterval(fetchOffers, 60000);
     return () => clearInterval(interval);
   }, [autoRefresh]);
 
-  // --- FILTRARE și SORTARE ---
+  // FILTRARE și SORTARE
   const filteredOffers = offers.filter((offer) => {
     const loadingMatch = filters.loading
-      ? offer.loading_location
-          .toLowerCase()
-          .includes(filters.loading.toLowerCase())
+      ? offer.loading_location.toLowerCase().includes(filters.loading.toLowerCase())
       : true;
     const unloadingMatch = filters.unloading
-      ? offer.unloading_location
-          .toLowerCase()
-          .includes(filters.unloading.toLowerCase())
+      ? offer.unloading_location.toLowerCase().includes(filters.unloading.toLowerCase())
       : true;
     const priceMatch =
       filters.hasPrice === null
@@ -195,45 +199,34 @@ const Workspace = () => {
     return 0;
   });
 
-  // PAGINARE (cu cel puțin 1 pagină)
-  const totalPages = Math.max(
-    1,
-    Math.ceil(filteredOffers.length / offersPerPage)
-  );
+  // PAGINARE
+  const totalPages = Math.max(1, Math.ceil(filteredOffers.length / offersPerPage));
   const paginatedOffers = sortedOffers.slice(
     (currentPage - 1) * offersPerPage,
     currentPage * offersPerPage
   );
 
-  // Sort handler (click pe header)
+  // Handler sortare
   const handleSort = (key) => {
     setSortConfig((prev) => {
       if (prev.key === key) {
-        return {
-          key,
-          direction: prev.direction === "asc" ? "desc" : "asc",
-        };
+        return { key, direction: prev.direction === "asc" ? "desc" : "asc" };
       }
       return { key, direction: "asc" };
     });
   };
 
-  // Când se schimbă vreun input din panoul de filtre
+  // Handler filtre
   const handleFilterChange = (e) => {
     const { name, value, type, checked } = e.target;
     const val = type === "checkbox" ? checked : value;
     setFilters((prev) => ({ ...prev, [name]: val }));
   };
 
-  // Eliminarea unei etichete de filtru
   const removeFilter = (key) => {
-    setFilters((prev) => ({
-      ...prev,
-      [key]: key === "hasPrice" ? null : "",
-    }));
+    setFilters((prev) => ({ ...prev, [key]: key === "hasPrice" ? null : "" }));
   };
 
-  // Stilul butoanelor din dropdown‐ul de limbă
   const dropdownBtnStyle = {
     padding: "0.5rem 1rem",
     background: "none",
@@ -245,10 +238,9 @@ const Workspace = () => {
 
   return (
     <div className="workspace">
-      {/* Overlay de tranziție dark/light */}
       <div className={`transition-overlay ${darkMode ? "dark" : "light"}`}></div>
 
-      {/* ===== NAVBAR ===== */}
+      {/* NAVBAR */}
       <nav className="navbar workspace-navbar">
         <div className="navbar-left">
           <a href="/workspace">
@@ -267,7 +259,7 @@ const Workspace = () => {
           className="navbar-right"
           style={{ display: "flex", alignItems: "center", gap: "1rem" }}
         >
-          {/* 🌍 Dropdown limbă */}
+          {/* Dropdown limbă */}
           <div style={{ position: "relative" }}>
             <button
               onClick={() => setShowLangDropdown((prev) => !prev)}
@@ -330,7 +322,7 @@ const Workspace = () => {
             )}
           </div>
 
-          {/* ☀︎/☾ Light/Dark mode */}
+          {/* Light/Dark toggle */}
           <button
             className="mode-toggle"
             title="Light/Dark mode"
@@ -374,7 +366,7 @@ const Workspace = () => {
         </div>
       </nav>
 
-      {/* ===== TOP BAR (filtre + refresh) ===== */}
+      {/* TOP BAR: filtre + refresh */}
       <div className="workspace-top-bar">
         <div className="filters-box">
           <button
@@ -433,7 +425,6 @@ const Workspace = () => {
 
         <div className="refresh-controls">
           <div className="toggle-buttons">
-            {/* Butonul Refresh care apelează run_gmail */}
             <button
               className={`toggle-btn ${!autoRefresh ? "active" : ""}`}
               onClick={async () => {
@@ -453,7 +444,7 @@ const Workspace = () => {
         </div>
       </div>
 
-      {/* ===== Etichete filtre active ===== */}
+      {/* Etichete filtre active */}
       <div className="active-filters">
         {filters.loading && (
           <span className="filter-tag" onClick={() => removeFilter("loading")}>
@@ -461,32 +452,23 @@ const Workspace = () => {
           </span>
         )}
         {filters.unloading && (
-          <span
-            className="filter-tag"
-            onClick={() => removeFilter("unloading")}
-          >
+          <span className="filter-tag" onClick={() => removeFilter("unloading")}>
             {translate("unloadingLabel")}: {filters.unloading} ✖
           </span>
         )}
         {filters.hasPrice === true && (
-          <span
-            className="filter-tag"
-            onClick={() => removeFilter("hasPrice")}
-          >
+          <span className="filter-tag" onClick={() => removeFilter("hasPrice")}>
             {translate("withPrice")} ✖
           </span>
         )}
         {filters.hasPrice === false && (
-          <span
-            className="filter-tag"
-            onClick={() => removeFilter("hasPrice")}
-          >
+          <span className="filter-tag" onClick={() => removeFilter("hasPrice")}>
             {translate("withoutPrice")} ✖
           </span>
         )}
       </div>
 
-      {/* ===== BODY: tabel + paginare + modal ===== */}
+      {/* BODY: tabel + paginare + modal */}
       <div className="workspace-body">
         <p>
           {filteredOffers.length} {translate("offersShown")}
@@ -582,19 +564,14 @@ const Workspace = () => {
               </thead>
               <tbody>
                 {paginatedOffers.map((offer) => (
-                  <tr
-                    key={offer.id}
-                    onClick={() => setSelectedOffer(offer)}
-                  >
+                  <tr key={offer.id} onClick={() => setSelectedOffer(offer)}>
                     <td>{offer.loading_location}</td>
                     <td>{offer.unloading_location}</td>
                     <td>{offer.distance_km}</td>
                     <td>{offer.weight_kg}</td>
                     <td>{offer.loading_date?.split("T")[0] || ""}</td>
                     <td>{offer.unloading_date?.split("T")[0] || ""}</td>
-                    <td>
-                      {offer.price > 0 ? offer.price + " €" : "—"}
-                    </td>
+                    <td>{offer.price > 0 ? `${offer.price} €` : "—"}</td>
                   </tr>
                 ))}
               </tbody>
@@ -615,8 +592,7 @@ const Workspace = () => {
                   ‹
                 </button>
                 <span>
-                  {translate("page")} {currentPage} {translate("of")}{" "}
-                  {totalPages}
+                  {translate("page")} {currentPage} {translate("of")} {totalPages}
                 </span>
                 <button
                   onClick={() => setCurrentPage((prev) => prev + 1)}
@@ -639,10 +615,7 @@ const Workspace = () => {
         )}
 
         {selectedOffer && (
-          <div
-            className="modal-backdrop"
-            onClick={() => setSelectedOffer(null)}
-          >
+          <div className="modal-backdrop" onClick={() => setSelectedOffer(null)}>
             <div
               className="modal-content modal-two-columns"
               onClick={(e) => e.stopPropagation()}
@@ -651,8 +624,7 @@ const Workspace = () => {
               <div className="modal-left">
                 <h3>{translate("offerDetails")}</h3>
                 <p>
-                  <strong>{translate("refCode")}:</strong>{" "}
-                  {selectedOffer.ref_number}
+                  <strong>{translate("refCode")}:</strong> {selectedOffer.ref_number}
                 </p>
                 <p>
                   <strong>{translate("loadingLocation")}:</strong>{" "}
@@ -663,42 +635,36 @@ const Workspace = () => {
                   {selectedOffer.unloading_location}
                 </p>
                 <p>
-                  <strong>{translate("distance")}:</strong>{" "}
-                  {selectedOffer.distance_km} km
+                  <strong>{translate("distance")}:</strong> {selectedOffer.distance_km} km
                 </p>
                 <p>
-                  <strong>{translate("weight")}:</strong>{" "}
-                  {selectedOffer.weight_kg} kg
+                  <strong>{translate("weight")}:</strong> {selectedOffer.weight_kg} kg
                 </p>
                 <p>
                   <strong>{translate("loadingDate")}:</strong>{" "}
-                  {selectedOffer.loading_date?.split("T")[0]}
+                  {selectedOffer.loading_date?.split("T")[0] || ""}
                 </p>
                 <p>
                   <strong>{translate("unloadingDate")}:</strong>{" "}
-                  {selectedOffer.unloading_date?.split("T")[0]}
+                  {selectedOffer.unloading_date?.split("T")[0] || ""}
                 </p>
                 <p>
                   <strong>{translate("price")}:</strong>{" "}
-                  {selectedOffer.price > 0
-                    ? selectedOffer.price + " €"
-                    : "—"}
+                  {selectedOffer.price > 0 ? `${selectedOffer.price} €` : "—"}
                 </p>
                 <p>
                   <strong>{translate("recommendedPrice")}:</strong>{" "}
                   {selectedOffer.recommended_price || "—"}
                 </p>
                 <p>
-                  <strong>{translate("cargoDetails")}:</strong>{" "}
-                  {selectedOffer.cargo_details}
+                  <strong>{translate("cargoDetails")}:</strong> {selectedOffer.cargo_details}
                 </p>
                 <p>
-                  <strong>{translate("observations")}:</strong>{" "}
-                  {selectedOffer.observations}
+                  <strong>{translate("observations")}:</strong> {selectedOffer.observations}
                 </p>
               </div>
 
-              {/* Dreapta: Arin (reply) */}
+              {/* Dreapta: Arin (reply) și buton delete */}
               <div className="modal-right">
                 <h4>{translate("arinResponse")}</h4>
                 <textarea
@@ -735,6 +701,7 @@ const Workspace = () => {
                   <button
                     className="delete-btn"
                     onClick={() => handleDelete(selectedOffer.id)}
+                    disabled={loading}
                   >
                     {translate("deleteOffer")}
                   </button>
@@ -742,10 +709,7 @@ const Workspace = () => {
                     className="reply-btn"
                     onClick={handleReply}
                     disabled={
-                      !selectedOffer ||
-                      !vehiclePlate ||
-                      !vehicleLocation ||
-                      !offerPrice
+                      !vehiclePlate || !vehicleLocation || !offerPrice
                     }
                   >
                     {translate("reply")}

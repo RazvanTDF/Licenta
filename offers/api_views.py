@@ -3,7 +3,7 @@
 import os
 import sys
 import subprocess
-
+from rest_framework.generics import RetrieveDestroyAPIView
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
@@ -52,15 +52,14 @@ class OfferListView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-class OfferDetailView(RetrieveAPIView):
+class OfferDetailView(RetrieveDestroyAPIView):
     """
-    Returnează datele unei singure oferte, după id.
+    Returnează detaliile unei singure oferte (GET) și permite ștergerea ei (DELETE) după id.
     """
     permission_classes = [IsAuthenticated]
     queryset = Offer.objects.all()
     serializer_class = OfferSerializer
     lookup_field = "id"
-
 
 class OfferExportView(APIView):
     """
