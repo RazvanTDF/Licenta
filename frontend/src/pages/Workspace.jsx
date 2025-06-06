@@ -1,3 +1,5 @@
+// frontend/src/pages/Workspace.jsx
+
 import { useEffect, useState } from "react";
 import "./Workspace.css";
 import Footer from "../components/Footer";
@@ -5,8 +7,7 @@ import { useLanguage } from "../contexts/LanguageContext";
 import translations from "../translations/translations";
 
 const Workspace = () => {
-  // Luăm doar `language` și `changeLanguage` din context;
-  // t nu mai e apelat direct, ci facem noi un helper care caută în `translations`.
+  // Luăm `language` și `changeLanguage` din context
   const { language, changeLanguage } = useLanguage();
 
   // Helper pentru traduceri
@@ -40,7 +41,7 @@ const Workspace = () => {
   const [vehicleLocation, setVehicleLocation] = useState("");
   const [offerPrice, setOfferPrice] = useState("");
 
-  // Când se schimbă `selectedOffer`, preumplem prețul (dacă există) și resetăm celelalte câmpuri
+  // Când se schimbă `selectedOffer`, preumplem prețul și resetăm câmpurile
   useEffect(() => {
     if (selectedOffer) {
       setOfferPrice(
@@ -54,10 +55,10 @@ const Workspace = () => {
 
   // Funcție helper care construiește textul din textarea (reply preview)
   const buildReplyText = () => {
-  const fn = translations[language]?.replyTextPreview;
-  if (typeof fn === "function") {
-    return fn(vehiclePlate, vehicleLocation, offerPrice, distanceToLocation);
-  }
+    const fn = translations[language]?.replyTextPreview;
+    if (typeof fn === "function") {
+      return fn(vehiclePlate, vehicleLocation, offerPrice, distanceToLocation);
+    }
     return "";
   };
 
@@ -77,7 +78,7 @@ const Workspace = () => {
     setSelectedOffer(null);
   };
 
-  // --- Funcția de fetch pentru oferte ---
+  // --- Funcția de fetch pentru oferte (normal, fără run_gmail) ---
   const fetchOffers = async () => {
     setLoading(true);
     try {
@@ -87,9 +88,16 @@ const Workspace = () => {
           Authorization: `Bearer ${token}`,
         },
       });
-      const data = await res.json();
-      setOffers(data);
-      console.log("Date primite de la API:", data);
+      if (!res.ok) {
+        console.error("Offer list HTTP error:", await res.json());
+        setOffers([]);
+      } else {
+        const data = await res.json();
+        // Dacă back‐end trimite array pur (fără paginare), `data` e array
+        // Dacă back‐end trimite obiect paginat, `data.results` e array
+        const list = Array.isArray(data) ? data : data.results;
+        setOffers(list);
+      }
     } catch (err) {
       console.error("Eroare la preluarea ofertelor:", err);
     } finally {
@@ -97,7 +105,44 @@ const Workspace = () => {
     }
   };
 
-  // La montare, preluăm ofertele
+  // --- Funcția de trigger pentru run_gmail=1 ---
+  const triggerFetchEmails = async () => {
+  console.log("triggerFetchEmails() start");
+  setLoading(true);
+  try {
+    const token = localStorage.getItem("accessToken");
+    console.log("Token din localStorage:", token);
+
+    const res = await fetch("http://localhost:8000/api/offers/?run_gmail=1", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    console.log("Răspuns HTTP (res.ok):", res.ok, "Status:", res.status);
+    const data = await res.json();
+    console.log("Date primite din backend:", data);
+
+    if (!res.ok) {
+      console.error("Eroare la rularea scriptului:", data);
+      return;
+    }
+
+    // Dacă e paginare (obiect cu results), sau array simplu:
+    const list = Array.isArray(data) ? data : data.results;
+    console.log("Lista finală de offers:", list);
+
+    setOffers(list);
+  } catch (err) {
+    console.error("Eroare la triggerFetchEmails:", err);
+  } finally {
+    setLoading(false);
+    console.log("triggerFetchEmails() end");
+  }
+};
+
+
+  // La montare, preluăm ofertele inițial
   useEffect(() => {
     fetchOffers();
   }, []);
@@ -113,7 +158,7 @@ const Workspace = () => {
     return () => clearTimeout(timeout);
   }, [darkMode]);
 
-  // Auto‐refresh la 60s dacă e activat
+  // Auto‐refresh la 60s: apelăm fetchOffers (nu run_gmail) dacă e activat
   useEffect(() => {
     if (!autoRefresh) return;
     const interval = setInterval(fetchOffers, 60000);
@@ -151,7 +196,10 @@ const Workspace = () => {
   });
 
   // PAGINARE (cu cel puțin 1 pagină)
-  const totalPages = Math.max(1, Math.ceil(filteredOffers.length / offersPerPage));
+  const totalPages = Math.max(
+    1,
+    Math.ceil(filteredOffers.length / offersPerPage)
+  );
   const paginatedOffers = sortedOffers.slice(
     (currentPage - 1) * offersPerPage,
     currentPage * offersPerPage
@@ -212,11 +260,9 @@ const Workspace = () => {
             />
           </a>
         </div>
-
         <div className="navbar-center">
           <span className="workspace-title">Workspace</span>
         </div>
-
         <div
           className="navbar-right"
           style={{ display: "flex", alignItems: "center", gap: "1rem" }}
@@ -387,17 +433,21 @@ const Workspace = () => {
 
         <div className="refresh-controls">
           <div className="toggle-buttons">
+            {/* Butonul Refresh care apelează run_gmail */}
             <button
               className={`toggle-btn ${!autoRefresh ? "active" : ""}`}
-              onClick={() => setAutoRefresh(false)}
+              onClick={async () => {
+                setAutoRefresh(false);
+                await triggerFetchEmails();
+              }}
             >
-              {translate("filters") === "Filtre" ? translate("filters") : "Refresh"}
+              {translate("refresh")}
             </button>
             <button
               className={`toggle-btn ${autoRefresh ? "active" : ""}`}
               onClick={() => setAutoRefresh(true)}
             >
-              Auto
+              {translate("auto")}
             </button>
           </div>
         </div>
@@ -452,7 +502,7 @@ const Workspace = () => {
                   <th>{translate("loadingLocation")}</th>
                   <th>{translate("unloadingLocation")}</th>
                   <th onClick={() => handleSort("distance_km")}>
-                    {translate("distance")}
+                    {translate("distance")}{" "}
                     <span className="sort-icons">
                       <span
                         className={
@@ -477,7 +527,7 @@ const Workspace = () => {
                     </span>
                   </th>
                   <th onClick={() => handleSort("weight_kg")}>
-                    {translate("weight")}
+                    {translate("weight")}{" "}
                     <span className="sort-icons">
                       <span
                         className={
@@ -504,7 +554,7 @@ const Workspace = () => {
                   <th>{translate("loadingDate")}</th>
                   <th>{translate("unloadingDate")}</th>
                   <th onClick={() => handleSort("price")}>
-                    {translate("price")}
+                    {translate("price")}{" "}
                     <span className="sort-icons">
                       <span
                         className={
@@ -530,7 +580,6 @@ const Workspace = () => {
                   </th>
                 </tr>
               </thead>
-
               <tbody>
                 {paginatedOffers.map((offer) => (
                   <tr
@@ -653,11 +702,10 @@ const Workspace = () => {
               <div className="modal-right">
                 <h4>{translate("arinResponse")}</h4>
                 <textarea
-                className="arin-preview"
-                readOnly
-                value={buildReplyText()}
+                  className="arin-preview"
+                  readOnly
+                  value={buildReplyText()}
                 />
-
                 <input
                   type="text"
                   placeholder={translate("vehiclePlatePlaceholder")}
