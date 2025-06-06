@@ -1,4 +1,4 @@
-/* === HELP PAGE === */
+/* Help.css */
 .help-page {
   display: flex;
   flex-direction: column;
@@ -7,9 +7,11 @@
   color: var(--text-color, #0B1B32);
 }
 
+
+
 .help-content {
   max-width: 1000px;
-  margin: 2rem auto;
+  margin: 1rem auto;
   padding: 2rem;
   background: white;
   border-radius: 12px;
@@ -19,10 +21,14 @@
   color: #0B1B32;
 }
 
+.help-content h1,
+.help-content h2 {
+  color: #26415E;
+}
+
 .help-content h1 {
   font-size: 2rem;
   margin-bottom: 1rem;
-  color: #26415E;
   text-align: center;
 }
 
@@ -30,7 +36,6 @@
   font-size: 1.4rem;
   margin-top: 2rem;
   margin-bottom: 1rem;
-  color: #26415E;
 }
 
 .help-content p,
@@ -43,7 +48,30 @@
   list-style-type: disc;
 }
 
-/* === DARK MODE === */
+.back-to-workspace-bar {
+  padding: 1rem;
+  background-color: var(--bg-color, #f5f7fa);
+}
+
+.back-to-workspace-btn {
+  background: none;
+  border: none;
+  color: #26415E;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.back-to-workspace-btn:hover {
+  text-decoration: underline;
+}
+
+/* DARK MODE */
+/* Atunci când <body> are clasa "dark", schimbăm culorile */
+body.dark .help-page {
+  background-color: #121924;
+  color: #dce3ed;
+}
+
 body.dark .help-content {
   background: #1a2430;
   color: #dce3ed;
@@ -52,5 +80,13 @@ body.dark .help-content {
 
 body.dark .help-content h1,
 body.dark .help-content h2 {
+  color: #dce3ed;
+}
+
+body.dark .back-to-workspace-bar {
+  background-color: #121924;
+}
+
+body.dark .back-to-workspace-btn {
   color: #dce3ed;
 }

@@ -88,7 +88,8 @@ const AuthPage = () => {
 
   return (
     <div className="auth-wrapper">
-      <div className="auth-card">
+      <div className="auth-background-text">{t.authMotivation}</div>
+      <div className={`auth-card ${isLogin ? "login-mode" : "register-mode"}`}>
         {/* ☀︎ / ☾ toggle */}
         <button
           className="mode-toggle"

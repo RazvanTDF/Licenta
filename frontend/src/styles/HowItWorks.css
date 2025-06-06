@@ -78,13 +78,13 @@
 .step-text h3 {
   margin-bottom: 1rem;
   font-size: 1.6rem;
-  color: var(--text-color, #d4d4d4);
+  color: var(--text-color, #0B1B32);
 }
 
 .step-text p {
   font-size: 1rem;
   line-height: 1.6;
-  color: var(--text-color, #d4d4d4);
+  color: var(--text-color, #0B1B32);
 }
 
 .close-btn {

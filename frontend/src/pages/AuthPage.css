@@ -19,7 +19,6 @@ body.dark .auth-wrapper {
 
 /* Text motivațional */
 .auth-wrapper::before {
-  content: "Mai e doar un pas până să fii mai rapid ca majoritatea.";
   position: absolute;
   bottom: 3rem;
   left: 50%;
@@ -31,6 +30,20 @@ body.dark .auth-wrapper {
   pointer-events: none;
   z-index: 0;
 }
+
+.auth-background-text {
+  position: absolute;
+  bottom: 4rem;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: rgba(2, 7, 14, 0.15); /* sau rgba(11, 27, 50, 0.15) pentru light */
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 0;
+}
+
 
 body.dark .auth-wrapper::before {
   color: rgba(255, 255, 255, 0.08);
@@ -71,7 +84,7 @@ body.dark .auth-card {
 }
 
 body.dark .mode-toggle {
-  color: #dce3ed;
+  color: #dce3ed;     
 }
 
 .auth-card h2 {
@@ -89,8 +102,9 @@ body.dark .auth-card h2 {
 .auth-card form {
   display: flex;
   flex-direction: column;
-  gap: 1.1rem;
+  gap: 1rem;
   animation: slideFade 0.8s ease;
+  transition: transform 0.6s ease;
 }
 
 /* Tranziție slide lateral */
@@ -111,6 +125,13 @@ body.dark .auth-card h2 {
   border: 1px solid #ccc;
   font-size: 1rem;
   transition: border 0.3s ease, box-shadow 0.3s ease;
+}
+
+.auth-card.login-mode form {
+  transform: translateX(0%);
+}
+.auth-card.register-mode form {
+  transform: translateX(5%);
 }
 
 .auth-card input:focus {
