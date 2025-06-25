@@ -1,104 +1,158 @@
-TRANSPORTE DEL FUTURO – Automatizarea ofertelor de transport primite prin email
+# Transporte del Futuro – Automatizarea ofertelor de transport primite prin email
 
-Descriere generală:
+## 📄 Descriere generală
 
-Transporte del Futuro este o aplicație web full-stack destinată firmelor de transport, în special dispecerilor care gestionează oferte primite prin email. Aplicația preia automat emailurile, extrage datele relevante despre curse, estimează distanța și prețul recomandat și permite dispecerului să răspundă direct din interfață.
+**Transporte del Futuro** este o aplicație web full-stack destinată firmelor de transport, în special dispecerilor care gestionează oferte primite prin email. Aplicația:
 
-Proiectul include componente pentru backend (Django), frontend (React + Vite), și o componentă AI integrată (bazată pe spaCy), folosită în backend pentru completarea inteligentă a datelor lipsă.
+- preia automat emailurile din Gmail;
+- extrage informațiile relevante despre curse (destinații, greutate, observații);
+- estimează distanța și prețul cu ajutorul Google Routes API;
+- completează datele lipsă folosind AI (spaCy);
+- oferă o interfață grafică pentru dispeceri cu opțiune de răspuns.
 
-Repository:
+---
+
+## 🔗 Repository
 
 Codul sursă complet al proiectului este disponibil la:
 
-https://github.com/RazvanTDF/Licenta
+[https://github.com/RazvanTDF/Licenta](https://github.com/RazvanTDF/Licenta)
 
-Structură livrabile:
+---
 
-- backend/ – aplicația backend realizată cu Django 5.1.3 și PostgreSQL
-- frontend/ – aplicația frontend construită cu React 19.1.0 și Vite 6.3.5
-- scripts/ – scripturi pentru preluarea emailurilor din Gmail
-- .env.example – fișier model cu variabilele necesare
-- README.txt – documentația completă
+## 📁 Structură livrabile
 
-Cerințe preliminare:
+- `backend/` – aplicația Django (cu PostgreSQL)
+- `frontend/` – aplicația React + Vite
+- `scripts/` – scripturi pentru preluare emailuri Gmail
+- `.env.example` – fișier model pentru variabile
+- `README.md` – documentația proiectului
 
-- Python 3.10+
-- Node.js 18+ (folosit pentru rularea frontendului)
-- PostgreSQL 14+
+---
+
+## ⚙️ Cerințe preliminare
+
+- Python `3.10+`
+- Node.js `18+` (pentru rularea React)
+- PostgreSQL `14+`
 - Git
 - pip și npm
 
-Pași de instalare și rulare:
+---
 
-1. Clonează proiectul
+## 🔧 Pași de instalare și rulare
 
+### 🔹 1. Clonează proiectul
+
+```bash
 git clone https://github.com/RazvanTDF/Licenta.git
 cd Licenta
+```
 
-2. Instalare și rulare backend (Django)
+---
 
+### 🔹 2. Rulare backend (Django)
+
+```bash
 cd backend
 python -m venv venv
-source venv/bin/activate     (sau .\venv\Scripts\activate pe Windows)
+source venv/bin/activate  # sau .\venv\Scripts\activate pe Windows
 pip install -r ../requirements.txt
-cp .env.example .env
+
+cp .env.example .env      # completează valorile necesare
 python manage.py migrate
-python manage.py runserver   (server disponibil pe http://localhost:8000)
+python manage.py runserver
+```
 
-3. Instalare și rulare frontend (React + Vite)
+Backend-ul va fi disponibil la:  
+`http://localhost:8000`
 
+---
+
+### 🔹 3. Rulare frontend (React + Vite)
+
+```bash
 cd ../frontend
 npm install
-npm run dev                  (server disponibil pe http://localhost:5173)
+npm run dev
+```
 
-Config Gmail API (Google Cloud Platform):
+Frontend-ul va fi disponibil la:  
+`http://localhost:5173`
 
-1. Creare cont Google Cloud la https://console.cloud.google.com
-   - contul trebuie verificat cu un card bancar valid
-2. Creare proiect nou
-3. Activare servicii:
+---
+
+## 🔑 Configurare Gmail API (Google Cloud)
+
+1. Creează un cont pe [https://console.cloud.google.com](https://console.cloud.google.com)
+2. Verifică-l cu un card bancar valid
+3. Creează un proiect nou
+4. Activează serviciile:
    - Gmail API
    - Google Routes API
-4. Configurare OAuth 2.0:
-   - Tip aplicație: Desktop
-   - Nume aplicație: Transporte del Futuro
-   - Email suport și email dezvoltator
-   - Scope: ../auth/gmail.readonly
-   - Adăugare test user (adresa Gmail personală/pentru acest caz)
-5. Creare Client ID (OAuth client ID)
-   - Tip aplicație: Desktop
-   - Descarcă fișierul credentials.json și plasează-l în folderul scripts/
 
-6. Rulează autorizarea Gmail
+---
 
+### 🔸 Configurare OAuth 2.0
+
+- Navighează la APIs & Services > OAuth consent screen
+- Tip aplicație: **Desktop**
+- Nume aplicație: Transporte del Futuro
+- Completează: email suport, email dezvoltator, test users (adresa ta Gmail)
+- Creează OAuth Client ID → tip aplicație: Desktop
+- Descarcă `credentials.json` și plasează-l în folderul `scripts/`
+
+---
+
+### 🔸 Autorizare aplicație
+
+```bash
 cd scripts
 python fetch_emails.py
+```
 
-→ Se generează token.pickle pentru autentificare automată
+→ Se generează `token.pickle` pentru acces Gmail persistent.
 
-Config Google Routes API:
+---
+
+## 🧭 Google Routes API
 
 - Obține cheia API din Google Cloud Console
-- Adaug-o în fișierul .env:
+- Adaug-o în fișierul `.env`:
 
+```env
 GOOGLE_MAPS_API_KEY=cheia_ta_personală
+```
 
-Testare locală:
+---
 
-- Backend API: http://localhost:8000/api/
-- Frontend: http://localhost:5173
+## 🧪 Testare locală
 
-Autentificare și roluri:
+| Componentă   | Adresă locală                |
+|--------------|------------------------------|
+| Backend API  | http://localhost:8000/api/   |
+| Frontend     | http://localhost:5173        |
 
-Sistemul utilizează JWT pentru autentificare. Rolurile definite sunt:
-- vizitator
-- dispecer (cu aprobare din partea adminului)
-- admin
+---
 
-Tokenul este trimis în headerul Authorization: Bearer
+## 🔐 Autentificare și roluri
 
-Fișier de configurare pentru VS Code (.vscode/settings.json):
+Sistemul folosește JWT (via Django REST Framework SimpleJWT). Rolurile disponibile:
 
+- Vizitator
+- Dispecer (necesită aprobare)
+- Admin
+
+Tokenul este trimis în header:  
+`Authorization: Bearer <token>`
+
+---
+
+## ⚙️ Configurare VS Code (opțional)
+
+Fișierul `.vscode/settings.json`:
+
+```json
 {
   "python.autoComplete.extraPaths": [
     "./backend",
@@ -114,13 +168,20 @@ Fișier de configurare pentru VS Code (.vscode/settings.json):
     "reportUndefinedVariable": "none"
   }
 }
+```
 
-Fișiere excluse din repository:
+---
 
-- .env (conține date sensibile)
-- credentials.json și token.pickle
-- .pyc, .pkl, .exe
-- __pycache__/, .venv/, node_modules/
+## 📂 Fișiere excluse din repository
 
-Autor: Todor Ovidiu-Răzvan  
-Coordonator științific: Ș.l.dr.ing. Valer Bocan
+- `.env` (conține variabile sensibile)
+- `credentials.json` și `token.pickle`
+- Fișiere binare: `.pyc`, `.pkl`, `.exe`
+- Foldere: `__pycache__/`, `.venv/`, `node_modules/`
+
+---
+
+## 👤 Autor și coordonator
+
+**Autor**: Todor Ovidiu-Răzvan  
+**Coordonator științific**: Ș.l.dr.ing. Valer Bocan
