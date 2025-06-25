@@ -10,7 +10,7 @@ Repository:
 
 Codul sursă complet al proiectului este disponibil la:
 
-https://github.com/nume-utilizator/transporte-del-futuro
+[https://github.com/nume-utilizator/transporte-del-futuro](https://github.com/RazvanTDF/Licenta)
 
 Structură livrabile:
 
