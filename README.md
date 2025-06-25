@@ -4,7 +4,7 @@ Descriere generală:
 
 Transporte del Futuro este o aplicație web full-stack destinată firmelor de transport, în special dispecerilor care gestionează oferte primite prin email. Aplicația preia automat emailurile, extrage datele relevante despre curse, estimează distanța și prețul recomandat și permite dispecerului să răspundă direct din interfață.
 
-Proiectul include componente pentru backend (Django), frontend (React + Vite) și un microserviciu AI (FastAPI + spaCy) pentru completarea inteligentă a datelor lipsă.
+Proiectul include componente pentru backend (Django), frontend (React + Vite), și o componentă AI integrată (bazată pe spaCy), folosită în backend pentru completarea inteligentă a datelor lipsă.
 
 Repository:
 
@@ -16,7 +16,6 @@ Structură livrabile:
 
 - backend/ – aplicația backend realizată cu Django 5.1.3 și PostgreSQL
 - frontend/ – aplicația frontend construită cu React 19.1.0 și Vite 6.3.5
-- chat_ai/ – microserviciu AI pentru completare fallback (FastAPI + spaCy)
 - scripts/ – scripturi pentru preluarea emailurilor din Gmail
 - .env.example – fișier model cu variabilele necesare
 - README.txt – documentația completă
@@ -33,8 +32,8 @@ Pași de instalare și rulare:
 
 1. Clonează proiectul
 
-git clone https://github.com/nume-utilizator/transporte-del-futuro.git
-cd transporte-del-futuro
+git clone https://github.com/RazvanTDF/Licenta.git
+cd Licenta
 
 2. Instalare și rulare backend (Django)
 
@@ -52,12 +51,6 @@ cd ../frontend
 npm install
 npm run dev                  (server disponibil pe http://localhost:5173)
 
-4. Rulare microserviciu AI (FastAPI + spaCy)
-
-cd ../chat_ai
-pip install -r requirements.txt
-uvicorn main:app --reload --port 8001
-
 Config Gmail API (Google Cloud Platform):
 
 1. Creare cont Google Cloud la https://console.cloud.google.com
@@ -71,7 +64,7 @@ Config Gmail API (Google Cloud Platform):
    - Nume aplicație: Transporte del Futuro
    - Email suport și email dezvoltator
    - Scope: ../auth/gmail.readonly
-   - Adăugare test user (adresa Gmail ta)
+   - Adăugare test user (adresa Gmail personală/pentru acest caz)
 5. Creare Client ID (OAuth client ID)
    - Tip aplicație: Desktop
    - Descarcă fișierul credentials.json și plasează-l în folderul scripts/
@@ -94,7 +87,6 @@ Testare locală:
 
 - Backend API: http://localhost:8000/api/
 - Frontend: http://localhost:5173
-- AI (FastAPI): http://localhost:8001/docs
 
 Autentificare și roluri:
 
