@@ -41,3 +41,8 @@ dist/
 venv_ai/
 offers/gmail/credentials.json
 offers/gmail/token.pickle
+.env
+offers/gmail/credentials.json
+offers/gmail/token.pickle
+
+# Jupyter Notebook checkpoints
