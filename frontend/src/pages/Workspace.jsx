@@ -654,7 +654,7 @@ const Workspace = () => {
                 </p>
                 <p>
                   <strong>{translate("recommendedPrice")}:</strong>{" "}
-                  {selectedOffer.recommended_price || "—"}
+                   {selectedOffer.recommended_price}
                 </p>
                 <p>
                   <strong>{translate("cargoDetails")}:</strong> {selectedOffer.cargo_details}

@@ -7,11 +7,10 @@ import translations from "../translations/translations";
 import "./Help.css";
 
 const Help = () => {
-  // Preluăm limbajul curent și funcția de schimbare limbă
+
   const { language, changeLanguage } = useLanguage();
   const navigate = useNavigate();
 
-  // Helper pentru traduceri: caută în translations[language][key]
   const translate = (key) => translations[language]?.[key] || key;
 
   // State pentru dark mode
@@ -19,20 +18,19 @@ const Help = () => {
     () => localStorage.getItem("darkMode") === "true"
   );
 
-  // State pentru dropdown‐ul de limbă și profil
+  // State pentru dropdown
   const [showLangDropdown, setShowLangDropdown] = useState(false);
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
 
   // Verificăm dacă utilizatorul e logat (dacă există accessToken)
   const isLoggedIn = !!localStorage.getItem("accessToken");
 
-  // La montarea / schimbarea lui darkMode, modificăm clasa pe <body>
   useEffect(() => {
     document.body.classList.toggle("dark", darkMode);
     localStorage.setItem("darkMode", darkMode);
   }, [darkMode]);
 
-  // --- Funcții de navigare / logout ---
+
   const goToWorkspace = () => {
     if (isLoggedIn) navigate("/Workspace");
     else navigate("/");
@@ -43,7 +41,7 @@ const Help = () => {
     window.location.href = "/";
   };
 
-  // Styling pentru butoanele din dropdown‐ul de limbă
+ 
   const dropdownBtnStyle = {
     padding: "0.5rem 1rem",
     background: "none",
@@ -81,7 +79,7 @@ const Help = () => {
           className="navbar-right"
           style={{ display: "flex", alignItems: "center", gap: "1rem" }}
         >
-          {/* 🚩 Dropdown limbă */}
+          {/* 🚩 Dropdown lang */}
           <div style={{ position: "relative" }}>
             <button
               onClick={() => setShowLangDropdown((prev) => !prev)}
@@ -195,7 +193,7 @@ const Help = () => {
         </button>
       </div>
 
-      {/* ========== Conținutul paginii de Ajutor ========== */}
+      {/* ==========  paginii de Ajutor ========== */}
       <div className="help-content">
         <h2>{translate("howItWorksTitle")}</h2>
         <p>{translate("helpParagraph1")}</p>

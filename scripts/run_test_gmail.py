@@ -283,7 +283,7 @@ def process_email_advanced():
                             distance_km,
                             weight_kg
                         )
-                        price = None
+                        price = 0.0
                     else:
                         recommended_price = None
                         price = parse_price(details.get('price'))

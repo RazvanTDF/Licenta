@@ -303,7 +303,7 @@ body:not(.transitioning) .hero-bg {
   scroll-padding-top: 80px;
 }
 
-/* DARK MODE FIXED */
+/* DARK MODE */
 .dark body {
   background-color: #1f2c3a;
   color: #dce3ed;
@@ -317,6 +317,12 @@ body:not(.transitioning) .hero-bg {
 
 .dark .how-it-works {
   background-color: #1f2c3a;
+  color: #dce3ed;
+}
+.dark .how-it-works p {
+  color: #dce3ed;
+}
+.dark .how-it-works h3 {
   color: #dce3ed;
 }
 

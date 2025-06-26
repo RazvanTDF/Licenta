@@ -20,13 +20,13 @@ const AuthPage = () => {
   const t = translations[language];
   const navigate = useNavigate();
 
-  // 🔒 Redirect dacă deja logat
+  // deja logat
   useEffect(() => {
     const token = localStorage.getItem("accessToken");
     if (token) navigate("/workspace", { replace: true });
   }, [navigate]);
 
-  // Aplică dark mode pe body
+  // dark mode pe body
   useEffect(() => {
     const body = document.body;
     if (darkMode) {
@@ -76,6 +76,10 @@ const AuthPage = () => {
 
       if (isLogin) {
         localStorage.setItem("accessToken", data.access);
+        localStorage.setItem("userRole", data.user.role);
+        localStorage.setItem("userEmail", data.user.email);
+        localStorage.setItem("username", data.user.username);
+        localStorage.setItem("isStaff", data.user.is_staff);  // (fallback, dacă ai nevoie)
         navigate("/workspace", { replace: true });
       } else {
         alert(t.successRegister);
@@ -88,6 +92,15 @@ const AuthPage = () => {
 
   return (
     <div className="auth-wrapper">
+      {!localStorage.getItem("accessToken") && (
+        <img
+          src="../logo_min.jpg"
+          alt="Back to Home"
+          className="auth-logo-top"
+          onClick={() => navigate("/")}
+          style={{ cursor: "pointer" }}
+        />
+      )}
       <div className="auth-background-text">{t.authMotivation}</div>
       <div className={`auth-card ${isLogin ? "login-mode" : "register-mode"}`}>
         {/* ☀︎ / ☾ toggle */}

@@ -10,6 +10,8 @@ import PrivateRoute from './components/PrivateRoute.jsx';
 import LandingPage from './pages/LandingPage.jsx';
 import Workspace from './pages/Workspace.jsx';
 import Help from './pages/Help.jsx';
+import PendingPage from './pages/PendingPage.jsx';
+
 
 import { LanguageProvider } from './contexts/LanguageContext'; // ✅
 
@@ -18,6 +20,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
     <LanguageProvider> {/* ⬅️ Învelim totul în context */}
       <BrowserRouter>
         <Routes>
+          <Route path="/pending" element={<PendingPage />} />
           <Route path="/" element={<LandingPage />} />
           <Route path="/auth" element={<AuthPage />} />
           <Route path="/help" element={<Help />} />

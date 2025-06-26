@@ -1,0 +1,124 @@
+/* === PENDING PAGE MODERN STYLE === */
+
+.pending-wrapper {
+  min-height: 100vh;
+  background: linear-gradient(to top, #83A6CE 0%, #f3f6fa 75%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: background-color 0.8s ease;
+}
+
+body.dark .pending-wrapper {
+  background: linear-gradient(to top, #0B1B32 0%, #1D5C5F 75%);
+  backdrop-filter: blur(8px);
+}
+
+.pending-card {
+  position: relative;
+  background: white;
+  padding: 3rem 2.5rem;
+  border-radius: 24px;
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.12);
+  text-align: center;
+  max-width: 480px;
+  width: 90%;
+  transition: all 0.4s ease;
+}
+
+body.dark .pending-card {
+  background: #1a2430;
+  color: #dce3ed;
+}
+
+/* ☀︎ / ☾ toggle în colțul cardului */
+.mode-toggle {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: none;
+  border: none;
+  font-size: 1.3rem;
+  cursor: pointer;
+  color: #26415E;
+  z-index: 10;
+  transition: color 0.3s ease;
+}
+
+body.dark .mode-toggle {
+  color: #dce3ed;
+}
+
+.pending-logo {
+  width: 200px;
+  margin-bottom: 1.5rem;
+}
+
+.pending-card h2 {
+  font-size: 1.9rem;
+  margin-bottom: 1rem;
+  color: #1D5C5F;
+}
+
+body.dark .pending-card h2 {
+  color: #A8DADC;
+}
+
+.pending-card p {
+  font-size: 1rem;
+  margin-bottom: 2rem;
+  color: #26415E;
+}
+
+body.dark .pending-card p {
+  color: #dce3ed;
+}
+
+.pending-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.pending-card button {
+  padding: 0.75rem 1.5rem;
+  border-radius: 12px;
+  font-weight: bold;
+  border: none;
+  cursor: pointer;
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+}
+
+.contact-btn {
+  background: #33aeff;
+  color: white;
+}
+
+.contact-btn:hover {
+  background: #1995e6;
+}
+
+.back-btn {
+  background: #5cb8ff;
+  color: white;
+}
+
+.back-btn:hover {
+  background: #379fe0;
+}
+
+@media (max-width: 480px) {
+  .pending-card {
+    padding: 2rem 1.2rem;
+  }
+
+  .pending-logo {
+    width: 80px;
+  }
+
+  .pending-card h2 {
+    font-size: 1.6rem;
+  }
+}

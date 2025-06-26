@@ -5,7 +5,6 @@ from django.db.models import Avg, F, FloatField, ExpressionWrapper
 from .models import Offer
 from datetime import datetime
 
-
 GOOGLE_MAPS_API_KEY = config("GOOGLE_MAPS_API_KEY")
 
 def parse_date_ai(date_str):
@@ -13,11 +12,14 @@ def parse_date_ai(date_str):
     for fmt in formats:
         try:
             return datetime.strptime(date_str.strip(), fmt)
-        except:
+        except Exception:
             continue
     return None
 
 def recommend_price_simple(loading_location, unloading_location, distance_km, weight_kg):
+    """
+    Calculează prețul recomandat pe baza istoricului sau folosește un fallback dacă nu există date.
+    """
     offers = Offer.objects.filter(
         loading_location__iexact=loading_location.strip(),
         unloading_location__iexact=unloading_location.strip(),
@@ -37,49 +39,48 @@ def recommend_price_simple(loading_location, unloading_location, distance_km, we
 
     if avg_price_per_km_kg:
         recommended_price = round(weight_kg * distance_km * avg_price_per_km_kg, 2)
+        print(f"[DEBUG] recommended_price calculat din istoric: {recommended_price} EUR")
         return recommended_price
 
+   
+    fallback_price_per_km_kg = 0.11  
+    if distance_km and weight_kg:
+        recommended_price = round(weight_kg * distance_km * fallback_price_per_km_kg, 2)
+        print(f"[DEBUG] Fallback recommended_price: {recommended_price} EUR ({fallback_price_per_km_kg} EUR/km/kg)")
+        return recommended_price
+
+    print("[DEBUG] Nu se poate calcula recommended_price (fără date suficiente).")
     return None
 
 def get_distance_from_google_routes(origin, destination):
     """
-    Folosește Google Routes API pentru a obține distanța exactă (în km).
+    Folosește Google Directions API pentru a obține distanța în km.
     """
     try:
-        url = "https://routes.googleapis.com/directions/v2:computeRoutes"
-        headers = {
-            "Content-Type": "application/json",
-            "X-Goog-Api-Key": GOOGLE_MAPS_API_KEY,
-            "X-Goog-FieldMask": "routes.distanceMeters"
-        }
-        body = {
-            "origin": {"address": origin},
-            "destination": {"address": destination},
-            "travelMode": "DRIVE",
-            "routingPreference": "TRAFFIC_AWARE"
+        url = "https://maps.googleapis.com/maps/api/directions/json"
+        params = {
+            "origin": origin,
+            "destination": destination,
+            "key": GOOGLE_MAPS_API_KEY  # Folosește key din .env!
         }
 
-        response = requests.post(url, headers=headers, json=body)
+        response = requests.get(url, params=params)
         response.raise_for_status()
         data = response.json()
 
-        if data.get("routes"):
-            distance_meters = data["routes"][0]["distanceMeters"]
+        if data.get("status") == "OK" and data["routes"]:
+            distance_meters = data["routes"][0]["legs"][0]["distance"]["value"]
             distance_km = round(distance_meters / 1000, 2)
             print(f"✅ Distanță obținută: {distance_km} km între {origin} și {destination}")
             return distance_km
         else:
-            print(f"⚠️ Răspuns invalid API: {data}")
-
-    except requests.exceptions.RequestException as e:
-        print(f"❌ Eroare la apelul API Routes: {e}")
-    except (IndexError, KeyError) as e:
-        print(f"❌ Răspuns neașteptat de la API Routes: {e}")
+            print(f"⚠️ API Directions nu a returnat rute: {data.get('status')} - {data.get('error_message', '')}")
+    except Exception as e:
+        print(f"❌ Eroare la apelul Google Directions API: {e}")
 
     return 0
 
 def parse_email_content(email_body):
-    
     """
     Parsează corpul emailului și returnează informațiile extrase cu regex.
     Recunoaște câteva sinonime pentru termeni uzuali.
@@ -126,8 +127,7 @@ def parse_email_content(email_body):
             re.IGNORECASE
         ],
     }
-    
-    
+
     details = {}
     for key, (pattern, flags) in terms_mapping.items():
         match = re.search(pattern, email_body, flags)
@@ -143,7 +143,7 @@ def parse_email_content(email_body):
                 value = value.replace(",", ".")
                 try:
                     details[key] = float(value)
-                except:
+                except Exception:
                     details[key] = 0.0
                 print(f"[DEBUG] Parsed float for {key}: {details[key]}")
             else:
@@ -151,8 +151,6 @@ def parse_email_content(email_body):
                 print(f"[DEBUG] Found value for {key}: {value} ({type(value)})")
 
     return details
-
-
 
 def calculate_best_offer():
     """

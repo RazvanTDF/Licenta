@@ -9,7 +9,7 @@ const Navbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // ✅ Aplică dark mode global cu tranziție blur
+  
   useEffect(() => {
     document.body.classList.add("transitioning");
     document.body.classList.toggle("dark", darkMode);
@@ -18,7 +18,7 @@ const Navbar = () => {
     return () => clearTimeout(timeout);
   }, [darkMode]);
 
-  // ✅ Stil buton dropdown
+  
   const dropdownBtnStyle = {
     padding: "8px 12px",
     background: "none",
@@ -52,9 +52,9 @@ const Navbar = () => {
         <img src="/logo_min.jpg" alt="TdF Logo" style={{ height: "40px", borderRadius: "6px" }} />
       </div>
 
-      {/* Dreapta: limbă + info + dark mode */}
+      {/* Dreapta: limba + info + dark mode */}
       <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-        {/* 🌍 Dropdown limbă */}
+        {/* 🌍 Dropdown limba */}
         <div style={{ position: "relative" }}>
           <button
             onClick={() => setShowLangDropdown((prev) => !prev)}
@@ -95,7 +95,7 @@ const Navbar = () => {
           )}
         </div>
 
-        {/* Link „Cum funcționează” doar pe landing */}
+        {/* Link hiw doar pe landing */}
         {location.pathname === "/" && (
           <a href="#how-it-works" style={{ color: "white", textDecoration: "none", fontSize: "0.95rem" }}>
             Cum funcționează

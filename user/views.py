@@ -43,8 +43,14 @@ class LoginView(APIView):
             return Response({
                 "refresh": str(refresh),
                 "access": str(refresh.access_token),
+                "user": {
+                    "username": user.username,
+                    "email": user.email,
+                    "role": user.profile.role  # 🔥 ADĂUGAT aici
+                }
             })
         return Response({"error": "Date invalide."}, status=401)
+
 
 
 class UserProfileView(APIView):

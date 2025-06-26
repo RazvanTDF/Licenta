@@ -3,7 +3,6 @@ import { createContext, useContext, useState, useEffect } from "react";
 // Limbile suportate
 const availableLanguages = ["ro", "en", "es"];
 
-// Obține limba salvată sau folosește "ro" ca fallback
 const getInitialLanguage = () => {
   const saved = localStorage.getItem("appLanguage");
   if (availableLanguages.includes(saved)) return saved;
